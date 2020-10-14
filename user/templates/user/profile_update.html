@@ -1,0 +1,19 @@
+{% extends 'user/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class='row'>
+    <div class="col-12">
+        <h1>Form is printed</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ uForm|crispy }}
+            {{ pForm|crispy }}
+            <button class="btn btn-outline-info" type='submit'>Update info</button>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

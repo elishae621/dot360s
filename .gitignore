@@ -1,0 +1,10 @@
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+__pycache__
+profile_pics
+.pytest_cache
+.vscode
+.pycharm

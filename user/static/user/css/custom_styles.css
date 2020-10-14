@@ -1,0 +1,17 @@
+.progress_text_left, .progress_text_right {
+    position: absolute;
+    bottom: 5px;
+}
+.progress_text_left {
+    left: 5px;
+}
+.progress_text_right {
+    right: 5px;
+}
+.progress_bar {
+    position: relative;
+}
+.account_img {
+    height: 70px !important;
+    color: darkolivegreen
+}

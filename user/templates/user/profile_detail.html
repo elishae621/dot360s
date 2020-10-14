@@ -1,0 +1,22 @@
+{% extends "user/base.html" %}
+{% block content %}
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="col-4">
+            <img class="img-fluid img-circle account_img" src='{{ user.profile.image.url }}' alt="profile picture">
+        </div>
+        <div class="col-8">
+            <h3>{{ user.firstname }} {{ user.lastname }}</h3>
+            <P>{{ user.email }}</P>
+        </div>
+    </div>
+    <div class="card-body">
+        
+        <a href="{% url 'profile_update' %}" class="btn btn-info">Update</a>
+
+    </div>
+</div>
+
+{% endblock %}
