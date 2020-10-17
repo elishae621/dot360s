@@ -101,7 +101,7 @@ class Driver(models.Model):
         return f"Driver => {self.user.firstname}"
 
     def get_absolute_url(self):
-        return reverse_lazy('driver_profile_detail')
+        return reverse_lazy('driver_profile_detail', kwargs={'pk':self.user.driver.pk})
 
 
 class Vehicle(models.Model):
@@ -111,13 +111,19 @@ class Vehicle(models.Model):
         (3, 'Car'),
     )
 
-    owner = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    owner = models.OneToOneField(Driver, on_delete=models.CASCADE, related_name='vehicle')
     name = models.CharField(max_length=20, null=True)
     plate_number = models.CharField(max_length=15, null=True)
     color = models.CharField(max_length=15, null=True)
     capacity = models.IntegerField(null=True)
     vehicle_type = models.PositiveSmallIntegerField(choices=VEHICLE_CHOICE, null=True)
 
+    def __str__(self):
+        return f"{self.owner}'s vehicle"
+
+    def get_absolute_url(self):
+        return reverse("driver_profile_detail", kwargs={'pk': self.owner.pk})
+    
 
 class Request(models.Model):
     driver = models.ForeignKey(Driver, related_name='driver',
@@ -144,9 +150,9 @@ class Ride(models.Model):
         (4, 'Completed'),
     )
 
-    request = models.OneToOneField(Request, on_delete=models.CASCADE)
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request')
     status = models.PositiveSmallIntegerField(choices=RIDE_STATUS,
-                                              null=True, blank=True)
+    null=True, blank=True)
     price = models.FloatField(default=100.00)
 
     def __str__(self):

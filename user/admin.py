@@ -23,12 +23,12 @@ class UserAdminConfig(UserAdmin):
     # add the Driver inline to the User model
     inlines = (UserInline, )
     search_fields = ('email', 'firstname',)
-    list_filter = ('email', 'firstname', 'is_active', 'is_staff')
+    list_filter = ('email', 'firstname', 'is_driver', 'is_active', 'is_staff')
     ordering = ('firstname',)
-    list_display = ('email', 'firstname', 'lastname', 'is_active', 'is_staff',)
+    list_display = ('email', 'firstname', 'lastname','is_driver',  'is_active', 'is_staff',)
     fieldsets = (
         (None, {'fields': ('email', 'firstname',)}),
-        ('Permissions', {'fields': ('is_staff', 'is_active',)}),
+        ('Permissions', {'fields': ('is_staff', 'is_driver', 'is_active',)}),
     )
 
     add_fieldsets = (

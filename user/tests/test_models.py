@@ -2,10 +2,10 @@ from django.test import TestCase
 from user.models import User, Driver, Vehicle, Request, Ride
 from dot360s.settings import INSTALLED_APPS, AUTH_USER_MODEL
 from django.db import transaction
-from django.shortcuts import reverse
 from faker import Faker
 from user.providers import CustomPhoneProvider
 from phonenumber_field.phonenumber import PhoneNumber
+from django.urls import reverse_lazy
 
 
 fake = Faker()
@@ -34,7 +34,7 @@ class TestCreateSuperuser(TestCase):
         self.assertTrue(self.superuser.is_active)
        
     def test_default_is_driver(self):
-    	self.assertFalse(self.superuser.is_driver)
+        self.assertFalse(self.superuser.is_driver)
 
     def test_not_is_staff(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_staff=True."):
@@ -51,6 +51,21 @@ class TestCreateSuperuser(TestCase):
 class TestCreateUser(TestCase):
     def setUp(self):
         fake = Faker()
+        self.user = User.objects.create_user(email=fake.email(),
+        firstname=fake.first_name(), lastname=fake.last_name(),
+        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
+
+    def test_not_superuser(self):
+        self.assertFalse(self.user.is_superuser)
+
+    def test_not_staff(self):
+        self.assertFalse(self.user.is_staff)
+
+    def test_not_active(self):
+        self.assertTrue(self.user.is_active)
+
+    def test_not_drvier(self):
+        self.assertFalse(self.user.is_driver)
 
     def test_not_email(self):
         with self.assertRaises(ValueError, msg="You must provide an email address"):
@@ -65,89 +80,76 @@ class TestUserModel(TestCase):
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
             phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
 
-	def test_default_is_driver(self):
-    	self.assertFalse(self.user.is_driver)
-
-	def test_driver_model_not_created(self):
-		self.assertFalse(Driver.objects.filter(user=self.user).first())
-
     def test_str_function(self):
-        self.assertEqual(str(self.user), f'Passenger => self.user.firstname')
+        self.assertEqual(str(self.user), f'Passenger => {self.user.firstname}')
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.user.get_absolute_url(), reverse(
-            'home')
+        self.assertEqual(self.user.get_absolute_url(), reverse_lazy(
+            'home'))
 
 
 class TestDriverModel(TestCase):
     def setUp(self):
         self.user = User.objects.create(
-                    email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-                    phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(),
-                    is_driver=True)
-
-	def test_driver_model_created(self):
-		self.assertTrue(Driver.objects.filter(user=self.user).first())
+            email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(), is_driver=True)
 
     def test_str_function(self):
-        self.assertEqual(str(self.user.Driver),
-                         f'Driver => self.user.firstname')
+        self.assertEqual(str(self.user.driver),
+            f'Driver => {self.user.firstname}')
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.user.Driver.get_absolute_url(), reverse(
-            'driver_profile_detail')
+        self.assertEqual(self.user.driver.get_absolute_url(), reverse_lazy(
+            'driver_profile_detail', kwargs={'pk':self.user.driver.pk}))
 
-
-class TestDriver(TestCase):
+class TestVehicleModel(TestCase):
     def setUp(self):
-        fake = Faker()
-        self.driver = User.objects.create(email=fake.email(),
-                                          firstname=fake.first_name(), lastname=fake.last_name(),
-                                          is_driver=True)
+        self.user = User.objects.create(
+            email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(), is_driver=True)
 
     def test_str_function(self):
-        self.assertEqual(str(self.driver), f"User: {self.driver.email}")
+        self.assertEqual(str(self.user.driver.vehicle),
+            f"{self.user.driver}'s vehicle")
 
-
-class TestPassenger(TestCase):
-    def setUp(self):
-        fake = Faker()
-        self.passenger = User.objects.create(email=fake.email(),
-                                             firstname=fake.first_name(), lastname=fake.last_name())
-
-    def test_str_function(self):
-        self.assertEqual(str(self.passenger),
-                         f"User: {self.passenger.email}")
+    def test_get_absolute_url(self):
+        self.assertEqual(self.user.driver.vehicle.get_absolute_url(), reverse_lazy(
+            'driver_profile_detail', kwargs={'pk': self.user.driver.pk}))
 
 
 class TestRequest(TestCase):
     def setUp(self):
         fake = Faker()
-        self.driver = User.objects.create(email=fake.email(),
-                                          firstname=fake.first_name(),
-                                          lastname=fake.last_name())
-        self.passenger = User.objects.create(email=fake.email(),
-                                             firstname=fake.first_name(), lastname=fake.last_name())
+        user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            password=fake.password(), is_driver=True)
+        self.driver = user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            password=fake.password())
 
-        self.request = Request.objects.create(driver=self.driver,
-                                              passenger=self.passenger, from_address="address", to_address="address")
+        self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
 
     def test_str_function(self):
         self.assertEqual(str(self.request),
-                         f"Request: {self.driver}, {self.passenger}")
+            f"Request: {self.driver}, {self.passenger}")
 
 
 class TestRide(TestCase):
     def setUp(self):
         fake = Faker()
-        self.driver = User.objects.create(email=fake.email(),
-                                          firstname=fake.first_name(), lastname=fake.last_name())
-        self.passenger = User.objects.create(email=fake.email(),
-                                             firstname=fake.first_name(), lastname=fake.last_name())
+        fake = Faker()
+        user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            password=fake.password(), is_driver=True)
+        self.driver = user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            password=fake.password())
         self.request = Request.objects.create(driver=self.driver,
-                                              passenger=self.passenger, from_address="address", to_address="address")
+        passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
         self.ride = Ride.objects.create(request=self.request)
 
     def test_str_function(self):
         self.assertEqual(str(self.ride),
-                         f"Ride => Request: {self.driver}, {self.passenger}")
+            f"Ride => Request: {self.driver}, {self.passenger}")

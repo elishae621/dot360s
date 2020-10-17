@@ -8,13 +8,14 @@ import time
 import pytest
 
 
-@pytest.mark.skip
+
 class TestUpdateViewMixin(TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(
             executable_path="E:\PC PROGRAMS\chromedriver_win32/chromedriver")
         driver = self.driver
         registered_user = Common.Register(driver=driver)
+        time.sleep(10)
 
     def test_register_and_login(self):
         self.assertIn("dot360s", driver.title)
