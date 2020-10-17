@@ -32,6 +32,9 @@ class TestCreateSuperuser(TestCase):
 
     def test_default_is_active(self):
         self.assertTrue(self.superuser.is_active)
+       
+    def test_default_is_driver(self):
+    	self.assertFalse(self.superuser.is_driver)
 
     def test_not_is_staff(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_staff=True."):
@@ -62,27 +65,37 @@ class TestUserModel(TestCase):
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
             phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
 
+	def test_default_is_driver(self):
+    	self.assertFalse(self.user.is_driver)
+
+	def test_driver_model_not_created(self):
+		self.assertFalse(Driver.objects.filter(user=self.user).first())
+
     def test_str_function(self):
-        self.assertEqual(str(self.user), self.user.firstname)
+        self.assertEqual(str(self.user), f'Passenger => self.user.firstname')
 
     def test_get_absolute_url(self):
         self.assertEqual(self.user.get_absolute_url(), reverse(
-            'profile_detail', kwargs={'pk': self.user.pk}))
+            'home')
 
 
-class TestProfileModel(TestCase):
+class TestDriverModel(TestCase):
     def setUp(self):
-        fake = Faker()
-        self.user = User.objects.create(email=fake.email(),
-                                        firstname=fake.first_name(), lastname=fake.last_name())
+        self.user = User.objects.create(
+                    email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
+                    phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(),
+                    is_driver=True)
+
+	def test_driver_model_created(self):
+		self.assertTrue(Driver.objects.filter(user=self.user).first())
 
     def test_str_function(self):
         self.assertEqual(str(self.user.Driver),
-                         f"{self.user.firstname}'s Driver")
+                         f'Driver => self.user.firstname')
 
     def test_get_absolute_url(self):
         self.assertEqual(self.user.Driver.get_absolute_url(), reverse(
-            'profile_detail', kwargs={'pk': self.user.pk}))
+            'driver_profile_detail')
 
 
 class TestDriver(TestCase):

@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.shortcuts import reverse
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from django.urls import reverse_lazy
 
 
 class CustomAccountManager(BaseUserManager):
@@ -66,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"Passenger => {self.firstname}"
 
     def get_absolute_url(self):
-        return f'/user/{self.pk}/'
+        return reverse_lazy('home')
 
 
 class Driver(models.Model):
@@ -100,7 +101,7 @@ class Driver(models.Model):
         return f"Driver => {self.user.firstname}"
 
     def get_absolute_url(self):
-        return f'/user/{self.pk}/'
+        return reverse_lazy('driver_profile_detail')
 
 
 class Vehicle(models.Model):
