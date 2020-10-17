@@ -9,8 +9,9 @@
         <h1>Form is printed</h1>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ uForm|crispy }}
             {{ pForm|crispy }}
+            {{ dForm|crispy }}
+            {{ vForm|crispy }}
             <button class="btn btn-outline-info" type='submit'>Update info</button>
         </form>
     </div>

@@ -10,7 +10,7 @@ class Common(object):
 
     def Register(driver):
         fake = Faker()
-        driver.get("http://localhost:8080" + reverse('account_signup'))
+        driver.get("http://localhost:8080" + reverse('passenger_register'))
         time.sleep(2)
 
         email_field = driver.find_element_by_id("id_email")

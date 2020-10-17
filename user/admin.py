@@ -1,16 +1,18 @@
 from django.contrib import admin
-from user.models import User, Profile
+from user.models import (
+    User, Driver, Vehicle, Request, Ride
+)
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 
 
-# the follow code will append the user profile inline at the bottom of
+# the follow code will append the user Driver inline at the bottom of
 # the user 's models and not place it in a seperate models like the main
 # User model.
 class UserInline(admin.StackedInline):
-    model = Profile
+    model = Driver
     can_delete = False
-    verbose_name_plural = 'Profile'
+    verbose_name_plural = 'Driver'
     fk_name = 'user'
 
 
@@ -18,7 +20,7 @@ class UserInline(admin.StackedInline):
 # also include cusomisation features for the interface
 class UserAdminConfig(UserAdmin):
     model = User
-    # add the profile inline to the User model
+    # add the Driver inline to the User model
     inlines = (UserInline, )
     search_fields = ('email', 'firstname',)
     list_filter = ('email', 'firstname', 'is_active', 'is_staff')
@@ -43,4 +45,7 @@ class UserAdminConfig(UserAdmin):
 
 
 admin.site.register(User, UserAdminConfig)
-admin.site.register(Profile)
+admin.site.register(Driver)
+admin.site.register(Vehicle)
+admin.site.register(Request)
+admin.site.register(Ride)

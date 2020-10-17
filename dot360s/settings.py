@@ -51,11 +51,6 @@ INSTALLED_APPS = [
     # allauth
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-
-    # allauth providers
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
 ]
 
 SITE_ID = 1
@@ -179,20 +174,3 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 ACCOUNT_FORMS = {
     'signup': 'user.forms.UserRegistrationForm',
 }
-
-SOCIALACCOUNT_QUERY_EMAIL = ACCOUNT_EMAIL_REQUIRED
-SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_REQUIRED
-SOCIALACCOUNT_STORE_TOKENS = False
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
-#  django allauth settings end

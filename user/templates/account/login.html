@@ -1,7 +1,6 @@
 {% extends "user/base.html" %}
 
 {% load crispy_forms_tags %}
-{% load socialaccount %}
 
 
 {% block content %}
@@ -23,9 +22,8 @@
     <input type="submit" value="login" id="login">
     <input type="hidden" name="next" value="{{ next }}">
 </form>
-<button class="mt-4"><a href="{% provider_login_url 'google' %}">Google Login</a></button>
 
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+{% comment %} Assumes you setup the password_reset view in your URLconf {% endcomment %}
+{% comment %} <p><a href="{% url 'account_password_reset' %}">Lost password?</a></p> {% endcomment %}
 
 {% endblock %}

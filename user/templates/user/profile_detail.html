@@ -5,7 +5,7 @@
 <div class="card">
     <div class="card-header">
         <div class="col-4">
-            <img class="img-fluid img-circle account_img" src='{{ user.profile.image.url }}' alt="profile picture">
+            <img class="img-fluid img-circle account_img" src='{{ user.Driver.image.url }}' alt="Driver picture">
         </div>
         <div class="col-8">
             <h3>{{ user.firstname }} {{ user.lastname }}</h3>
@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         
-        <a href="{% url 'profile_update' %}" class="btn btn-info">Update</a>
+        <a href="{% url 'driver_profile_update' %}" class="btn btn-info">Update</a>
 
     </div>
 </div>

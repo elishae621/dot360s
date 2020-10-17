@@ -1,39 +1,42 @@
 from django import forms
-from user.models import Profile, User
-from allauth.account.forms import SignupForm
+from user.models import Driver, User, Vehicle
+# from allauth.account.forms import SignupForm
+from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.forms import UserCreationForm
 
 
-class UserRegistrationForm(SignupForm):
-    email = forms.EmailField(required= True)
+class UserRegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
     firstname = forms.CharField(required=True)
     lastname = forms.CharField(required=False)
-    image = forms.ImageField(required=False)
-    
+    phone = PhoneNumberField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'firstname', 'lastname', 'phone')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs['placeholder'] = 'Email'
         self.fields['firstname'].widget.attrs['placeholder'] = 'firstname'
         self.fields['lastname'].widget.attrs['placeholder'] = 'lastname'
-        self.fields['image'].widget.attrs['placeholder'] = 'Profile pics'
+        self.fields['phone'].widget.attrs['placeholder'] = 'Phone Number'
 
 
-    def save(self, request):
-        user = super(UserRegistrationForm, self).save(request)
-        user.firstname = self.cleaned_data['firstname']
-        user.lastname = self.cleaned_data['lastname']
-        if 'image' in self.cleaned_data:
-            user.profile.image = self.cleaned_data['image']
-        user.save()
-        return user
-        
+class DriverProfileUpdateForm(forms.ModelForm):
+    location = forms.ChoiceField(choices=Driver.CITIES)
+    status = forms.ChoiceField(choices=Driver.STATUS_CHOICES)
+    journey_type = forms.MultipleChoiceField(choices=Driver.JOURNEY_CHOICES)
 
-class ProfileUpdateForm(forms.ModelForm):
     class Meta:
-        model = Profile
-        fields = ['image', ]
+        model = Driver
+        fields = ['image', 'location',
+                  'status', 'journey_type']
 
 
-class UserUpdateForm(forms.ModelForm):
+class VehicleUpdateForm(forms.ModelForm):
+    vehicle_type = forms.ChoiceField(choices=Vehicle.VEHICLE_CHOICE)
+
     class Meta:
-        model = User
-        fields = ['firstname', 'lastname', ]
+        model = Vehicle
+        fields = ['name', 'plate_number', 'capacity', 'color', 'vehicle_type']

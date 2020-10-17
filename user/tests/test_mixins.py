@@ -7,7 +7,7 @@ import factory
 from django.urls import reverse
 from user.models import User
 import pytest
-from user.forms import UserUpdateForm, ProfileUpdateForm
+from user.forms import  DriverProfileUpdateForm, VehicleUpdateForm
 
 
 class TestUpdateViewMixin(TestCase):
@@ -23,7 +23,7 @@ class TestUpdateViewMixin(TestCase):
 
         }
         self.request = RequestFactory().post(
-            reverse('profile_update'), self.data)
+            reverse('driver_profile_update'), self.data)
         self.request.user = self.user
         self.response = views.update_profile.as_view()(self.request)
         self.user.refresh_from_db()
@@ -49,7 +49,7 @@ class TestUpdateFormInvalid(TestCase):
             'email': 'invalid_email'
         }
         self.request = RequestFactory().post(
-            reverse('profile_update'), self.invalid_data)
+            reverse('driver_profile_update'), self.invalid_data)
         self.request.user = self.user
         self.response = views.update_profile.as_view()(self.request)
         self.user.refresh_from_db()
@@ -58,7 +58,8 @@ class TestUpdateFormInvalid(TestCase):
     #     self.assertFalse(self.response.context_data['pForm'].is_valid())
 
     def test_pForm_invalid(self):
-        self.assertFalse(self.response.context_data['uForm'].is_valid())
+        self.assertFalse(self.response.context_data['Form'].is_valid())
+
 
 class TestGet(TestCase):
 
@@ -67,11 +68,11 @@ class TestGet(TestCase):
         self.view = views.update_profile()
         self.user = UserFactory()
         self.request = RequestFactory().get(
-            reverse('profile_update'))
+            reverse('driver_profile_update'))
         self.request.user = self.user
         self.response = views.update_profile.as_view()(self.request)
         self.user.refresh_from_db()
-    
+
     def test_status_code(self):
         self.assertEqual(self.response.status_code, 200)
 
@@ -80,4 +81,3 @@ class TestGet(TestCase):
 
     def test_pForm_is_in_context(self):
         self.assertIn('pForm', self.response.context_data)
-

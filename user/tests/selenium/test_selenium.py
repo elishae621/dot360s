@@ -7,6 +7,7 @@ from user.tests.selenium.common import Common
 import time
 import pytest
 
+
 @pytest.mark.skip
 class TestUpdateViewMixin(TestCase):
     def setUp(self):
