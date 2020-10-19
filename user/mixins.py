@@ -1,4 +1,4 @@
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 from user.forms import DriverProfileUpdateForm, VehicleUpdateForm
 from django.shortcuts import redirect, reverse
 from django.contrib.auth import logout
@@ -6,45 +6,57 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from user.models import Vehicle, User, Driver
 from django.http import Http404
 from django.views.generic.detail import DetailView
+from django.contrib import messages
 
 
-class Update_view(FormView):
+class MustbeDriverMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        if self.request.user.is_driver:
+            return True
+        else:
+            return False 
 
-    def setUp(self, request, *args, **kwargs):
-        self.driver = User.objects.filter(user_type=1).filter(
-            email=request.user.email).first()
-        super(Update_view, self).setUp(request, *args, **kwargs)
+
+class Update_view(MustbeDriverMixin, UpdateView):
+
+    def setup(self, request, *args, **kwargs):
+        self.driver = Driver.objects.filter(
+            user=request.user).first()
+        super(Update_view, self).setup(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         dForm = DriverProfileUpdateForm(
-            request.POST, request.FILES, instance=self.driver.driver_profile)
+            request.POST, request.FILES, instance=self.driver)
         vForm = VehicleUpdateForm(request.POST, instance=self.driver.vehicle)
+        
         if dForm.is_valid() and vForm.is_valid():
             return self.forms_valid(dForm, vForm)
         else:
             return self.forms_invalid(dForm, vForm)
 
     def forms_valid(self, dForm, vForm):
-        self.driver.driver_profile = dForm.save()
+        self.driver = dForm.save()
         self.driver.vehicle = vForm.save()
         return redirect(self.success_url)
 
-    def forms_invalid(self, dForm, pForm, vForm):
+    def forms_invalid(self, dForm, vForm):
         return self.render_to_response(self.get_context_data(
             dForm=dForm, vForm=vForm))
 
-    def get(self, request, *args, **kwargs):
-        self.dForm = DriverProfileUpdateForm(instance=self.driver.Driver)
-        self.vForm = VehicleUpdateForm(instance=self.driver.vehicle)
-        return self.render_to_response(self.get_context_data())
-
+    
     def get_context_data(self, **kwargs):
         if 'dForm' not in kwargs and 'vForm' not in kwargs:
             kwargs['dForm'] = DriverProfileUpdateForm(
-                self.request.POST, self.request.FILES, instance=self.driver.Driver)
+                self.request.POST, self.request.FILES, instance=self.driver)
             kwargs['vForm'] = VehicleUpdateForm(
                 self.request.POST, instance=self.driver.vehicle)
         return kwargs
+
+    def get(self, request, *args, **kwargs):
+        self.dForm = DriverProfileUpdateForm(instance=self.driver)
+        self.vForm = VehicleUpdateForm(instance=self.driver.vehicle)
+        return self.render_to_response(self.get_context_data())
+
 
 
 class GetLoginedInUserMixin(LoginRequiredMixin, DetailView):
@@ -56,6 +68,7 @@ class GetLoginedInUserMixin(LoginRequiredMixin, DetailView):
             # Get the single item from the filtered queryset
             obj = queryset.first()
         else:
-            raise Http404(_("No %(verbose_name)s found matching the query") %
+            raise Http404(("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
+

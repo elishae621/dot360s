@@ -1,0 +1,14 @@
+{% extends "user/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    {% if user.is_driver %}
+        <h1>{{ user }}, see the rides waiting for you</h1>
+        <p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
+    {% endif %}
+
+    {% if not user.is_driver %}
+        <h1>{{ user }}, order a ride</h1>
+    {% endif %}
+
+{% endblock %}

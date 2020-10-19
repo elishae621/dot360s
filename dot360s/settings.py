@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # 3rd-party apps
     'crispy_forms',
     'phonenumber_field',
+    'multiselectfield',
 
     # allauth
     'allauth',
@@ -90,7 +91,7 @@ WSGI_APPLICATION = 'dot360s.wsgi.application'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 # Database
@@ -147,9 +148,9 @@ MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LOGIN_REDIRECT_URL = reverse_lazy('user_profile_detail')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
-LOGIN_URL = reverse_lazy('account_login')
+LOGIN_URL = reverse_lazy('accounts_login')
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -165,7 +166,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 1000
 ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
-LOGIN_REDIRECT_URL = reverse_lazy('user_profile_detail')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True

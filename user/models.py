@@ -7,6 +7,7 @@ from django.shortcuts import reverse
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 from django.urls import reverse_lazy
+from multiselectfield import MultiSelectField
 
 
 class CustomAccountManager(BaseUserManager):
@@ -64,7 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['firstname', 'lastname', 'phone']
 
     def __str__(self):
-        return f"Passenger => {self.firstname}"
+        return f"{self.firstname}"
 
     def get_absolute_url(self):
         return reverse_lazy('home')
@@ -88,14 +89,14 @@ class Driver(models.Model):
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE,
-        limit_choices_to={'user_type': '1'})
+        limit_choices_to={'is_driver': True})
     image = models.ImageField(default="default.jpg", upload_to="profile_pics/")
     location = models.PositiveIntegerField(
         choices=CITIES, null=True, blank=True)
     status = models.PositiveSmallIntegerField(
         choices=STATUS_CHOICES, default=1)
-    journey_type = models.PositiveSmallIntegerField(
-        choices=JOURNEY_CHOICES, default=1)
+    journey_type = MultiSelectField(
+        choices=JOURNEY_CHOICES, default=1, null=True, blank=True)
 
     def __str__(self):
         return f"Driver => {self.user.firstname}"
@@ -112,11 +113,11 @@ class Vehicle(models.Model):
     )
 
     owner = models.OneToOneField(Driver, on_delete=models.CASCADE, related_name='vehicle')
-    name = models.CharField(max_length=20, null=True)
-    plate_number = models.CharField(max_length=15, null=True)
-    color = models.CharField(max_length=15, null=True)
-    capacity = models.IntegerField(null=True)
-    vehicle_type = models.PositiveSmallIntegerField(choices=VEHICLE_CHOICE, null=True)
+    name = models.CharField(max_length=20, null=True, blank=True)
+    plate_number = models.CharField(max_length=15, null=True, blank=True)
+    color = models.CharField(max_length=15, null=True, blank=True)
+    capacity = models.PositiveSmallIntegerField(null=True, blank=True)
+    vehicle_type = models.PositiveSmallIntegerField(choices=VEHICLE_CHOICE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.owner}'s vehicle"

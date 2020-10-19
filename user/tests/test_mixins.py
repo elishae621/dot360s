@@ -10,10 +10,12 @@ import pytest
 from user.forms import  DriverProfileUpdateForm, VehicleUpdateForm
 
 
+fake = Faker()
+
+
 class TestUpdateViewMixin(TestCase):
 
     def setUp(self):
-        self.fake = Faker()
         self.view = views.update_profile()
         self.user = UserFactory()
         self.data = {

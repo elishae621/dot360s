@@ -3,14 +3,16 @@ from user.tests.factories import UserFactory
 from django.urls import reverse
 import time
 from faker import Faker
-from user.models import User
+from user.models import User, Driver
+from user.providers import CustomPhoneProvider
+from phonenumber_field.phonenumber import PhoneNumber
 
 
 class Common(object):
-
     def Register(driver):
         fake = Faker()
-        driver.get("http://localhost:8080" + reverse('passenger_register'))
+        fake.add_provider(CustomPhoneProvider)
+        driver.get("http://localhost:8080" + reverse('account_signup'))
         time.sleep(2)
 
         email_field = driver.find_element_by_id("id_email")
@@ -29,7 +31,7 @@ class Common(object):
         lastname_field.clear()
         lastname_field.send_keys(fake.last_name())
 
-        password1_field = driver.find_element_by_id("id_password1")
+        password1_field = driver.find_element_by_id("id_password")
         password1_field.click()
         password1_field.clear()
         password = fake.password()
@@ -40,16 +42,28 @@ class Common(object):
         password2_field.clear()
         password2_field.send_keys(password)
 
-        image_field = driver.find_element_by_id("id_image")
-        image_field.send_keys(
-            r"E:\Picture\Happy birthday Esther ❤️ 20200120_105048.jpg")
+        phone_field = driver.find_element_by_id("id_phone")
+        phone_field.click()
+        phone_field.clear()
+        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164
+        phone_field.send_keys(phone)
+
+
+        # image_field = driver.find_element_by_id("id_image")
+        # image_field.send_keys(
+        #     r"E:\Picture\Happy birthday Esther ❤️ 20200120_105048.jpg")
 
         driver.find_element_by_id("register").click()
-        all_users = User.objects.all()
-        user = all_users.get(email=email)
+        driver.get("http://localhost:8080" + reverse('driver_profile_update'))
+        
+        try:
+            all_users = User.objects.all()
+            user = all_users.filter(email=email).first()
+        except User.DoesNotExist:
+            user = Driver.objects.filter(email=email).first()
         return user
 
-    def Login(driver, user):
+    def Login(user):
         driver.get("http://localhost:8080" + reverse('account_login'))
 
         email_field = driver.find_element_by_name("email")

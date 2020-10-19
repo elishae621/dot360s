@@ -6,11 +6,6 @@ urlpatterns = [
 
     path('', user_views.home.as_view(), name='home'),
 
-    path('register/', user_views.RegisterView.as_view(), name="passenger_register"),
-
-    path('register/<slug:driver>/',
-         user_views.RegisterView.as_view(), name="driver_register"),
-
     path('<int:pk>/',
          user_views.profile_detail_view.as_view(), name="driver_profile_detail"),
 

@@ -22,7 +22,7 @@ class TestCreateSuperuser(TestCase):
     def setUp(self):
         self.superuser = User.objects.create_superuser(email=fake.email(),
         firstname=fake.first_name(), lastname=fake.last_name(),
-        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
+        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
 
     def test_default_is_staff(self):
         self.assertTrue(self.superuser.is_staff)
@@ -39,12 +39,12 @@ class TestCreateSuperuser(TestCase):
     def test_not_is_staff(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_staff=True."):
             superuser = User.objects.create_superuser(email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(), is_staff=False)
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_staff=False)
 
     def test_not_is_superuser(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_superuser=True."):
             superuser = User.objects.create_superuser(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
             password=fake.password(), is_superuser=False)
 
 
@@ -53,7 +53,7 @@ class TestCreateUser(TestCase):
         fake = Faker()
         self.user = User.objects.create_user(email=fake.email(),
         firstname=fake.first_name(), lastname=fake.last_name(),
-        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
+        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
 
     def test_not_superuser(self):
         self.assertFalse(self.user.is_superuser)
@@ -70,7 +70,7 @@ class TestCreateUser(TestCase):
     def test_not_email(self):
         with self.assertRaises(ValueError, msg="You must provide an email address"):
             user = User.objects.create_user(email="", firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
 
 
 class TestUserModel(TestCase):
@@ -78,10 +78,10 @@ class TestUserModel(TestCase):
         fake = Faker()
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password())
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
 
     def test_str_function(self):
-        self.assertEqual(str(self.user), f'Passenger => {self.user.firstname}')
+        self.assertEqual(str(self.user), f'{self.user.firstname}')
 
     def test_get_absolute_url(self):
         self.assertEqual(self.user.get_absolute_url(), reverse_lazy(
@@ -92,7 +92,7 @@ class TestDriverModel(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(), is_driver=True)
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_driver=True)
 
     def test_str_function(self):
         self.assertEqual(str(self.user.driver),
@@ -106,7 +106,7 @@ class TestVehicleModel(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164, password=fake.password(), is_driver=True)
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_driver=True)
 
     def test_str_function(self):
         self.assertEqual(str(self.user.driver.vehicle),
@@ -121,11 +121,11 @@ class TestRequest(TestCase):
     def setUp(self):
         fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
             password=fake.password(), is_driver=True)
         self.driver = user.driver
         self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
             password=fake.password())
 
         self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
@@ -140,11 +140,11 @@ class TestRide(TestCase):
         fake = Faker()
         fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
             password=fake.password(), is_driver=True)
         self.driver = user.driver
         self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
             password=fake.password())
         self.request = Request.objects.create(driver=self.driver,
         passenger=self.passenger, from_address=fake.address(), to_address=fake.address())

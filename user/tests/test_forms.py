@@ -6,7 +6,7 @@ from user.forms import (
 from faker import Faker
 import factory
 from django.urls import reverse
-from user.models import User, Driver
+from user.models import User, Driver, Vehicle
 from django.http import HttpRequest
 from django.conf import settings
 from importlib import import_module
@@ -26,9 +26,9 @@ class TestUserRegistrationForm(TestCase):
             'email': fake.email(),
             'firstname': fake.first_name(),
             'lastname': fake.last_name(),
-            'password1': 'secretdeadlypassword',
+            'password': 'secretdeadlypassword',
             'password2': 'secretdeadlypassword',
-            'phone':PhoneNumber.from_string(phone_number=fake.phone_number(), region='NG').as_e164,
+            'phone':PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
         }
         self.form = UserRegistrationForm(data=self.data)
 
@@ -39,30 +39,11 @@ class TestDriverProfileUpdateForm(TestCase):
     def setUp(self):
         self.data = {
             'image': factory.django.ImageField(from_path=r"C:\Users\Elisha\Pictures\Screenshots\Screenshot (16).png", filename=r"\newimage", format="png"),
-            'location': ['Umuahia',],
-            'status': ['Not Avaliable',],
-            'journey_type': [1,]
+            'location': fake.random_int(min=1, max=len(Driver.CITIES)),
+            'status': fake.random_int(min=1, max=len(Driver.STATUS_CHOICES)),
+            'journey_type': [1,2]
         }
         self.form = DriverProfileUpdateForm(data=self.data)
-
-    def test_form_is_valid(self):
-        self.assertTrue(self.form.is_valid())
-
-
-class TestDriverUpdateForm(TestCase):
-
-    def setUp(self):
-        self.data = {
-            'firstname': fake.first_name(),
-            'lastname': fake.last_name(),
-            'location': fake.address(),
-            'status': fake.random_element(elements=
-                ('Not Avaliable', 'Busy', 'Avaliable')),
-            'journey_type': ['Within the city']
-            # 'journey_type': fake.random_elements(elements=
-                # ('IN', 'OUT'), unique=True)
-        }
-        self.form = DriverUpdateForm(data=self.data)
 
     def test_form_is_valid(self):
         self.assertTrue(self.form.is_valid())
@@ -76,9 +57,9 @@ class TestVehicleUpdateForm(TestCase):
             'plate_number': fake.bothify("???-###-???"),
             'capacity': fake.random_int(min=1, max=18),
             'color': fake.color_name(),
-            'vehicle_type': fake.random_element(elements=('Tricycle', 'Bus', 'Car'))
+            'vehicle_type': fake.random_int(min=1, max=len(Vehicle.VEHICLE_CHOICE))
         }
-        self.form = DriverUpdateForm(data=self.data)
+        self.form = VehicleUpdateForm(data=self.data)
 
     def test_form_is_valid(self):
         self.assertTrue(self.form.is_valid())
