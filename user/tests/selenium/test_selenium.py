@@ -2,13 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from django.test import TestCase, tag
 from django.urls import reverse
-from user.tests.factories import UserFactory
 from user.tests.selenium.common import Common
 import time
 import pytest
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 class TestUpdateViewMixin(TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(

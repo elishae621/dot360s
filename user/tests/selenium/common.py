@@ -1,17 +1,14 @@
 from selenium import webdriver
-from user.tests.factories import UserFactory
 from django.urls import reverse
 import time
 from faker import Faker
 from user.models import User, Driver
-from user.providers import CustomPhoneProvider
 from phonenumber_field.phonenumber import PhoneNumber
 
 
 class Common(object):
     def Register(driver):
         fake = Faker()
-        fake.add_provider(CustomPhoneProvider)
         driver.get("http://localhost:8080" + reverse('account_signup'))
         time.sleep(2)
 
@@ -45,7 +42,7 @@ class Common(object):
         phone_field = driver.find_element_by_id("id_phone")
         phone_field.click()
         phone_field.clear()
-        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164
+        phone=fake.numerify(text='080########')
         phone_field.send_keys(phone)
 
 

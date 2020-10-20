@@ -1,12 +1,13 @@
 from django import forms
-from user.models import Driver, User, Vehicle
+from user.models import Driver, User, Vehicle, Request, Ride
 # from allauth.account.forms import SignupForm
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
+from phonenumber_field.widgets import PhoneNumberInternationalFallbackWidget
 
 
 class UserRegistrationForm(forms.ModelForm):
-    phone = PhoneNumberField()
+    phone = forms.CharField(widget=PhoneNumberInternationalFallbackWidget(region='NG'))
     password = forms.CharField(widget=forms.PasswordInput())
     password2 = forms.CharField(widget=forms.PasswordInput())
 
@@ -14,13 +15,6 @@ class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email', 'firstname', 'lastname', 'password', 'password2', 'phone')
-
-    def clean_password1(self):
-        password = self.cleaned_data['password']
-        password1 = self.cleaned_data['password1']
-        if password1 is not password:
-            raise ValidationError("Your two password do not match")
-        return password1
 
 
 class DriverProfileUpdateForm(forms.ModelForm):
@@ -33,10 +27,17 @@ class DriverProfileUpdateForm(forms.ModelForm):
         fields = ['image', 'location',
                   'status', 'journey_type']
         
-
 class VehicleUpdateForm(forms.ModelForm):
     vehicle_type = forms.ChoiceField(choices=Vehicle.VEHICLE_CHOICE, widget=forms.RadioSelect())
 
     class Meta:
         model = Vehicle
         fields = ['name', 'plate_number', 'capacity', 'color', 'vehicle_type']
+
+class RequestForm(forms.ModelForm):
+    city = forms.ChoiceField(choices=Vehicle.VEHICLE_CHOICE, widget=forms.RadioSelect())
+    time = forms.DateTimeField(widget=forms.SplitDateTimeWidget)
+
+    class Meta:
+        model = Request
+        fields = ['from_address', 'to_address', 'city', 'no_of_passengers', 'load', 'time']

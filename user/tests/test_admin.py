@@ -1,7 +1,6 @@
 # from django.test import TestCase, RequestFactory
 # from user.admin import UserAdminConfig, UserInline
 # from user.models import User
-# from user.tests.factories import UserFactory
 # import unittest
 # from unittest.mock import patch
 
@@ -9,7 +8,6 @@
 # class TestUserAdminConfig(TestCase):
 
 #     def setUp(self):
-#         self.user = UserFactory()
 #         self.request = RequestFactory().get(f'/admin/user/user/{self.user.pk}/change/')
 
 #     @patch('user.admin.UserAdmin.get_inline_instances')

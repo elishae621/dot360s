@@ -90,12 +90,12 @@ class Driver(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE,
         limit_choices_to={'is_driver': True})
-    image = models.ImageField(default="default.jpg", upload_to="profile_pics/")
-    location = models.PositiveIntegerField(
+    image = models.ImageField(_('Profile Picture'), default="default.jpg", upload_to="profile_pics/")
+    location = models.PositiveIntegerField(_('Present City'),
         choices=CITIES, null=True, blank=True)
-    status = models.PositiveSmallIntegerField(
+    status = models.PositiveSmallIntegerField(_('Status'),
         choices=STATUS_CHOICES, default=1)
-    journey_type = MultiSelectField(
+    journey_type = MultiSelectField(_('Journey'),
         choices=JOURNEY_CHOICES, default=1, null=True, blank=True)
 
     def __str__(self):
@@ -131,8 +131,8 @@ class Request(models.Model):
         on_delete=models.SET_NULL, null=True )
     passenger = models.ForeignKey(User, related_name='passenger',
         on_delete=models.SET_NULL, null=True)
-    from_address = models.CharField(max_length=70, null=True)
-    to_address = models.CharField(max_length=70, null=True)
+    from_address = models.CharField(_('From'), max_length=70, null=True)
+    to_address = models.CharField(_('To'), max_length=70, null=True)
     city = models.CharField(max_length=15, choices=Driver.CITIES,
         null=True, blank=True)
     no_of_passengers = models.IntegerField(default=1)

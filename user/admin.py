@@ -38,10 +38,10 @@ class UserAdminConfig(UserAdmin):
         }),
     )
 
-    def get_inline_instances(self, request, obj=None):
-        if not obj:
-            return list()
-        return super(UserAdminConfig, self).get_inline_instances(request, obj)
+    # def get_inline_instances(self, request, obj=None):
+    #     if not obj:
+    #         return list()
+    #     return super(UserAdminConfig, self).get_inline_instances(request, obj)
 
 
 admin.site.register(User, UserAdminConfig)

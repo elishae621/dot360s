@@ -170,8 +170,13 @@ LOGIN_REDIRECT_URL = reverse_lazy('home')
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
-# ACCOUNT_SIGNUP_FORM_CLASS = this should represent additional details for signup form, check docs
 
 ACCOUNT_FORMS = {
     'signup': 'user.forms.UserRegistrationForm',
 }
+# django allauth settings end
+
+# phonenumber-field settings start
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
+PHONENUMBER_DEFAULT_REGION = 'NG' 
+# phonenumber-field settings end

@@ -10,6 +10,8 @@ urlpatterns = [
          user_views.profile_detail_view.as_view(), name="driver_profile_detail"),
 
     path('update/', user_views.driver_update_profile.as_view(),
-         name="driver_profile_update")
+         name="driver_profile_update"),
+
+    path('request/', user_views.request_view.as_view(), name="request_form")
 
 ]

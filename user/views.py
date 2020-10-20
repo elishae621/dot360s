@@ -6,7 +6,8 @@ from django.views.generic import TemplateView
 from user.forms import (
     UserRegistrationForm,
     DriverProfileUpdateForm,
-    VehicleUpdateForm
+    VehicleUpdateForm,
+    RequestForm
 )
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
@@ -26,10 +27,17 @@ class home(TemplateView):
 
 class driver_update_profile(GetLoginedInUserMixin, Update_view):
     """inheriting the main deadly mixin I wrote"""
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('driver_profile_update')
     template_name = "user/driver_profile_update.html"
+    model = Driver
 
 
 class profile_detail_view(GetLoginedInUserMixin, DetailView):
     template_name = "user/driver_profile_detail.html"
     model = Driver
+
+class request_view(CreateView):
+    form_class = RequestForm
+    template_name = "user/requestform.html"
+    Model = Request
+    success_url = 'home'

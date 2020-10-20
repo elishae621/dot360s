@@ -3,13 +3,11 @@ from user.models import User, Driver, Vehicle, Request, Ride
 from dot360s.settings import INSTALLED_APPS, AUTH_USER_MODEL
 from django.db import transaction
 from faker import Faker
-from user.providers import CustomPhoneProvider
 from phonenumber_field.phonenumber import PhoneNumber
 from django.urls import reverse_lazy
 
 
 fake = Faker()
-fake.add_provider(CustomPhoneProvider)
 
 
 class TestSettings(TestCase):
@@ -22,7 +20,7 @@ class TestCreateSuperuser(TestCase):
     def setUp(self):
         self.superuser = User.objects.create_superuser(email=fake.email(),
         firstname=fake.first_name(), lastname=fake.last_name(),
-        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
+        phone=fake.numerify(text='080########'), password=fake.password())
 
     def test_default_is_staff(self):
         self.assertTrue(self.superuser.is_staff)
@@ -39,12 +37,12 @@ class TestCreateSuperuser(TestCase):
     def test_not_is_staff(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_staff=True."):
             superuser = User.objects.create_superuser(email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_staff=False)
+            phone=fake.numerify(text='080########'), password=fake.password(), is_staff=False)
 
     def test_not_is_superuser(self):
         with self.assertRaises(ValueError, msg="Superuser must be assigned to is_superuser=True."):
             superuser = User.objects.create_superuser(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            phone=fake.numerify(text='080########'),
             password=fake.password(), is_superuser=False)
 
 
@@ -53,7 +51,7 @@ class TestCreateUser(TestCase):
         fake = Faker()
         self.user = User.objects.create_user(email=fake.email(),
         firstname=fake.first_name(), lastname=fake.last_name(),
-        phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
+        phone=fake.numerify(text='080########'), password=fake.password())
 
     def test_not_superuser(self):
         self.assertFalse(self.user.is_superuser)
@@ -70,7 +68,7 @@ class TestCreateUser(TestCase):
     def test_not_email(self):
         with self.assertRaises(ValueError, msg="You must provide an email address"):
             user = User.objects.create_user(email="", firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
+            phone=fake.numerify(text='080########'), password=fake.password())
 
 
 class TestUserModel(TestCase):
@@ -78,7 +76,7 @@ class TestUserModel(TestCase):
         fake = Faker()
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password())
+            phone=fake.numerify(text='080########'), password=fake.password())
 
     def test_str_function(self):
         self.assertEqual(str(self.user), f'{self.user.firstname}')
@@ -92,7 +90,7 @@ class TestDriverModel(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_driver=True)
+            phone=fake.numerify(text='080########'), password=fake.password(), is_driver=True)
 
     def test_str_function(self):
         self.assertEqual(str(self.user.driver),
@@ -106,7 +104,7 @@ class TestVehicleModel(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164, password=fake.password(), is_driver=True)
+            phone=fake.numerify(text='080########'), password=fake.password(), is_driver=True)
 
     def test_str_function(self):
         self.assertEqual(str(self.user.driver.vehicle),
@@ -121,11 +119,11 @@ class TestRequest(TestCase):
     def setUp(self):
         fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            phone=fake.numerify(text='080########'),
             password=fake.password(), is_driver=True)
         self.driver = user.driver
         self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            phone=fake.numerify(text='080########'),
             password=fake.password())
 
         self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
@@ -140,11 +138,11 @@ class TestRide(TestCase):
         fake = Faker()
         fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            phone=fake.numerify(text='080########'),
             password=fake.password(), is_driver=True)
         self.driver = user.driver
         self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            phone=fake.numerify(text='080########'),
             password=fake.password())
         self.request = Request.objects.create(driver=self.driver,
         passenger=self.passenger, from_address=fake.address(), to_address=fake.address())

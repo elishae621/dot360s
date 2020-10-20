@@ -11,13 +11,11 @@ from django.http import HttpRequest
 from django.conf import settings
 from importlib import import_module
 import pytest
-from user.providers import CustomPhoneProvider
 from faker import Faker
 from phonenumber_field.phonenumber import PhoneNumber
 
 fake = Faker()
-fake.add_provider(CustomPhoneProvider)
-
+password = fake.password()
 
 class TestUserRegistrationForm(TestCase):
 
@@ -26,14 +24,17 @@ class TestUserRegistrationForm(TestCase):
             'email': fake.email(),
             'firstname': fake.first_name(),
             'lastname': fake.last_name(),
-            'password': 'secretdeadlypassword',
-            'password2': 'secretdeadlypassword',
-            'phone':PhoneNumber.from_string(phone_number=fake.phone_number(), region='RU').as_e164,
+            'password': password,
+            'password2': password,
+            'phone': fake.numerify(text='080########'),
         }
         self.form = UserRegistrationForm(data=self.data)
 
     def test_form_is_valid(self):
+        print(self.form.errors)
         self.assertTrue(self.form.is_valid())
+
+    
 
 class TestDriverProfileUpdateForm(TestCase):
     def setUp(self):

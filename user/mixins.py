@@ -43,13 +43,12 @@ class Update_view(MustbeDriverMixin, UpdateView):
         return self.render_to_response(self.get_context_data(
             dForm=dForm, vForm=vForm))
 
-    
     def get_context_data(self, **kwargs):
         if 'dForm' not in kwargs and 'vForm' not in kwargs:
             kwargs['dForm'] = DriverProfileUpdateForm(
-                self.request.POST, self.request.FILES, instance=self.driver)
+                self.request.POST or None, self.request.FILES or None, instance=self.driver)
             kwargs['vForm'] = VehicleUpdateForm(
-                self.request.POST, instance=self.driver.vehicle)
+                self.request.POST or None, instance=self.driver.vehicle)
         return kwargs
 
     def get(self, request, *args, **kwargs):
