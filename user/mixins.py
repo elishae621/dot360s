@@ -1,12 +1,11 @@
-from django.views.generic.edit import FormView, UpdateView
+from django.views import generic
 from user.forms import DriverProfileUpdateForm, VehicleUpdateForm
-from django.shortcuts import redirect, reverse
-from django.contrib.auth import logout
+from django.shortcuts import redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from user.models import Vehicle, User, Driver
+from user.models import Driver, Request, User, Ride
 from django.http import Http404
-from django.views.generic.detail import DetailView
-from django.contrib import messages
+from faker import Faker
+fake = Faker()
 
 
 class MustbeDriverMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -17,7 +16,7 @@ class MustbeDriverMixin(LoginRequiredMixin, UserPassesTestMixin):
             return False 
 
 
-class Update_view(MustbeDriverMixin, UpdateView):
+class Update_view(MustbeDriverMixin, generic.UpdateView):
 
     def setup(self, request, *args, **kwargs):
         self.driver = Driver.objects.filter(
@@ -25,6 +24,8 @@ class Update_view(MustbeDriverMixin, UpdateView):
         super(Update_view, self).setup(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        
+        
         dForm = DriverProfileUpdateForm(
             request.POST, request.FILES, instance=self.driver)
         vForm = VehicleUpdateForm(request.POST, instance=self.driver.vehicle)
@@ -58,7 +59,7 @@ class Update_view(MustbeDriverMixin, UpdateView):
 
 
 
-class GetLoginedInUserMixin(LoginRequiredMixin, DetailView):
+class GetLoggedInDriverMixin(LoginRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         pk = self.request.user.id
         user = User.objects.get(pk=pk)
@@ -66,6 +67,34 @@ class GetLoginedInUserMixin(LoginRequiredMixin, DetailView):
         if queryset:
             # Get the single item from the filtered queryset
             obj = queryset.first()
+        else:
+            raise Http404(("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': queryset.model._meta.verbose_name})
+        return obj
+
+class GetLoggedInUserRequestMixin(LoginRequiredMixin, generic.DetailView):
+    def get_object(self, queryset=None):
+        pk = self.request.user.id
+        user = User.objects.get(pk=pk)
+        queryset = Request.objects.filter(passenger=user)
+        if queryset:
+            # Get the single item from the filtered queryset
+            obj = queryset.last()
+        else:
+            raise Http404(("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': queryset.model._meta.verbose_name})
+        return obj
+
+
+class GetLoggedInUserRideMixin(LoginRequiredMixin, generic.DetailView):
+    def get_object(self, queryset=None):
+        pk = self.request.user.id
+        user = User.objects.get(pk=pk)
+        request = Request.objects.filter(passenger=user).last()
+        queryset = Ride.objects.filter(request=request)
+        if queryset:
+            # Get the single item from the filtered queryset
+            obj = queryset.last()
         else:
             raise Http404(("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})

@@ -3,7 +3,6 @@ from user.models import (
     User, Driver, Vehicle, Request, Ride
 )
 from django.contrib.auth.admin import UserAdmin
-from django import forms
 
 
 # the follow code will append the user Driver inline at the bottom of
@@ -38,6 +37,34 @@ class UserAdminConfig(UserAdmin):
         }),
     )
 
+class VehicleInline(admin.StackedInline):
+    model = Vehicle
+    can_delete = True
+    verbose_name_plural = 'Vehicle'
+    fk_name = 'owner'
+
+
+class DriverAdminConfig(admin.ModelAdmin):
+    model = Driver
+    # add the Driver inline to the User model
+    inlines = (VehicleInline, )
+    search_fields = ('user', 'location', 'status', 'journey_type')
+    list_filter = ('user', 'status', 'journey_type', 'location')
+    ordering = ('location',)
+    list_display = ('user', 'status', 'journey_type', 'location')
+    fieldsets = (
+        (None, {'fields': ('user',)}),
+        ('Details', {'fields': ('status', 'location', 'journey_type',)}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('user', 'image', 'status', 'journey_type', 'location',)
+        }),
+    )
+
+
     # def get_inline_instances(self, request, obj=None):
     #     if not obj:
     #         return list()
@@ -45,7 +72,6 @@ class UserAdminConfig(UserAdmin):
 
 
 admin.site.register(User, UserAdminConfig)
-admin.site.register(Driver)
-admin.site.register(Vehicle)
+admin.site.register(Driver, DriverAdminConfig)
 admin.site.register(Request)
 admin.site.register(Ride)

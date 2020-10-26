@@ -1,10 +1,10 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.shortcuts import reverse
-from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 from django.urls import reverse_lazy
 from multiselectfield import MultiSelectField
@@ -56,8 +56,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_driver = models.BooleanField(default=False)
-    phone = PhoneNumberField(
-        _('Phone Number'), null=True, blank=False, unique=True)
+    phone = models.CharField(max_length=14, null=True, blank=False, unique=True,
+        validators=[RegexValidator(regex="(?:^[+]{1}[0-9]*$)|(?:^0{1}[0-9]{10}$)",
+        message="Enter a valid phone number without spaces or hyphens")])
 
     objects = CustomAccountManager()
 
@@ -70,33 +71,33 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_absolute_url(self):
         return reverse_lazy('home')
 
-
 class Driver(models.Model):
-    CITIES = (
-        (1, 'Umuahia'),
-        (2, 'Aba')
-    )
 
-    JOURNEY_CHOICES = (
-        (1, 'Within the city'),
-        (2, 'InterCity travel')
-    )
+    class City(models.IntegerChoices):
+        Aba = 1
+        Umuahia = 2
+        Port_Harcourt = 3
+        Owerri = 4
 
-    STATUS_CHOICES = (
-        (1, 'Not Avaliable'),
-        (2, 'Busy'),
-        (3, 'Avaliable'),
-    )
+    class Journey_type(models.TextChoices):
+        within_the_city = 'IN'
+        outside_your_current_city = 'OUT'
+    
+    class Driver_status(models.TextChoices):
+        Not_Avaliable = 'NA'
+        Busy = 'BU'
+        Avaliable = 'AV'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE,
         limit_choices_to={'is_driver': True})
     image = models.ImageField(_('Profile Picture'), default="default.jpg", upload_to="profile_pics/")
     location = models.PositiveIntegerField(_('Present City'),
-        choices=CITIES, null=True, blank=True)
-    status = models.PositiveSmallIntegerField(_('Status'),
-        choices=STATUS_CHOICES, default=1)
+        choices=City.choices, null=True, blank=True)
+    status = models.CharField(_('Status'),
+        choices=Driver_status.choices, default=Driver_status.Not_Avaliable,
+        max_length=2)
     journey_type = MultiSelectField(_('Journey'),
-        choices=JOURNEY_CHOICES, default=1, null=True, blank=True)
+        choices=Journey_type.choices, default=Journey_type.within_the_city, null=True, blank=True)
 
     def __str__(self):
         return f"Driver => {self.user.firstname}"
@@ -106,18 +107,19 @@ class Driver(models.Model):
 
 
 class Vehicle(models.Model):
-    VEHICLE_CHOICE = (
-        (1, 'Tricycle'),
-        (2, 'Bus'),
-        (3, 'Car'),
-    )
+
+    class Vehicle_type(models.TextChoices):
+        Tricycle = 'T'
+        Bus = 'B'
+        Car = 'C'
 
     owner = models.OneToOneField(Driver, on_delete=models.CASCADE, related_name='vehicle')
     name = models.CharField(max_length=20, null=True, blank=True)
     plate_number = models.CharField(max_length=15, null=True, blank=True)
     color = models.CharField(max_length=15, null=True, blank=True)
     capacity = models.PositiveSmallIntegerField(null=True, blank=True)
-    vehicle_type = models.PositiveSmallIntegerField(choices=VEHICLE_CHOICE, null=True, blank=True)
+    vehicle_type = models.CharField(choices=Vehicle_type.choices, null=True, blank=True,
+    max_length=1)
 
     def __str__(self):
         return f"{self.owner}'s vehicle"
@@ -133,28 +135,36 @@ class Request(models.Model):
         on_delete=models.SET_NULL, null=True)
     from_address = models.CharField(_('From'), max_length=70, null=True)
     to_address = models.CharField(_('To'), max_length=70, null=True)
-    city = models.CharField(max_length=15, choices=Driver.CITIES,
+    city = models.PositiveSmallIntegerField(choices=Driver.City.choices,
         null=True, blank=True)
     no_of_passengers = models.IntegerField(default=1)
+    intercity = models.BooleanField(default=False)
     load = models.BooleanField(default=False)
     time = models.DateTimeField(default=timezone.now)
+    request_vehicle_type = models.CharField(choices=Vehicle.Vehicle_type.choices, null=True, blank=True,
+    max_length=1)
+
 
     def __str__(self):
         return f'Request: {self.driver}, {self.passenger}'
 
+    def get_absolute_url(self):
+        return reverse_lazy('price_confirmation')
 
 class Ride(models.Model):
-    RIDE_STATUS = (
-        (1, 'Waiting for confirmation'),
-        (2, 'Waiting for driver'),
-        (3, 'Ongoing'),
-        (4, 'Completed'),
-    )
+
+    class Ride_status(models.TextChoices):
+        waiting_for_confirmation = 'WC'
+        waiting_for_driver = 'WD'       
+        ongoing = 'ON'
+        completed = 'CO'
 
     request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request')
-    status = models.PositiveSmallIntegerField(choices=RIDE_STATUS,
-    null=True, blank=True)
+    status = models.CharField(choices=Ride_status.choices,
+    default=Ride_status.waiting_for_confirmation, 
+    max_length=2)
     price = models.FloatField(default=100.00)
+    reference = models.CharField(max_length=50, default="not yet paid")
 
     def __str__(self):
         return f'Ride => {self.request}'

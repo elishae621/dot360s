@@ -1,0 +1,21 @@
+{% extends "user/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+{{ form.media.css }}
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media.js }}
+{% endblock %}
+
+{% block content %}
+
+<form method="post" action="{% url 'create_request' %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" value="request" id="request">
+</form>
+
+{% endblock %}

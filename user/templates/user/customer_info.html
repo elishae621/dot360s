@@ -1,0 +1,18 @@
+{% extends "user/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<form action="{% url 'customer_info' %}" method='post'>
+    
+    {% csrf_token %} 
+    
+    <div class='container'>
+        {{customer_info_form|crispy}}
+    </div>
+    
+    <input type=”Submit” value=”Make Payment”>
+</form>
+
+{% endblock %}

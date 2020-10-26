@@ -1,13 +1,8 @@
-from django.test import TestCase, RequestFactory, Client
-from user.mixins import Update_view
+from django.test import TestCase, RequestFactory
 from user import views
 from faker import Faker
-import factory
 from django.urls import reverse
-from user.models import User, Driver, Vehicle
-import pytest
-from user.forms import  DriverProfileUpdateForm, VehicleUpdateForm
-from phonenumber_field.phonenumber import PhoneNumber
+from user.models import Driver, Request, Ride, User, Vehicle
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
@@ -25,9 +20,9 @@ class TestMustBeDriverValidMixin(TestCase):
         is_driver=True)
         self.driver_user.set_password(fake.password())
         self.driver = Driver.objects.filter(user=self.driver_user).first()
-        self.driver.location= fake.random_int(min=1, max=len(Driver.CITIES))
-        self.driver.status = fake.random_int(min=1, max=len(Driver.STATUS_CHOICES))
-        self.driver.journey_type = fake.random_elements(elements=Driver.JOURNEY_CHOICES, unique=True)
+        self.driver.location= fake.random_element(elements=Driver.City.values)
+        self.driver.status = fake.random_element(elements=Driver.Driver_status.values)
+        self.driver.journey_type = fake.random_elements(elements=Driver.Journey_type.values, unique=True)
 
     
     def test_accessible_for_driver(self):
@@ -52,23 +47,25 @@ class TestUpdateViewMixin(TestCase):
         is_driver=True)
         self.driver_user.set_password(fake.password())
         self.driver = Driver.objects.filter(user=self.driver_user).first()
-        self.driver.location= 1
-        self.driver.status = 1
-        self.driver.journey_type = [1,]
+        self.driver.location = fake.random_element(elements=Driver.City.values)
+        self.driver.status = fake.random_element(elements=Driver.Driver_status.values)
+        self.driver.journey_type = fake.random_elements(elements=Driver.Journey_type.values, unique=True)
         self.driver.vehicle.name = "old name"
         self.driver.vehicle.plate_number = "old plate number"
         self.driver.vehicle.color = "old color"
-        self.driver.vehicle.capacity = 1
-        self.driver.vehicle.vehicle_type = 1
+        self.driver.vehicle.capacity = fake.random_int(min=1, max=20)
+        self.driver.vehicle.vehicle_type = fake.random_element(elements=Vehicle.Vehicle_type.values)
+        self.driver.save()
+        self.driver.vehicle.save()
         self.data = {
-            'location': 2,
-            'status': 2,
-            'journey_type': [1,2],
+            'location': fake.random_element(elements=Driver.City.values),
+            'status': fake.random_element(elements=Driver.Driver_status.values),
+            'journey_type': fake.random_elements(elements=Driver.Journey_type.values, unique=True),
             'name': 'new name',
             'plate number': 'new plate number',
             'color': 'new color',
-            'capacity': 2,
-            'vehicle_type': 2
+            'capacity': fake.random_int(min=1, max=20),
+            'vehicle_type': fake.random_element(elements=Vehicle.Vehicle_type.values)
         }
         self.request = RequestFactory().post(
             reverse('driver_profile_update'), self.data)
@@ -90,7 +87,8 @@ class TestUpdateViewMixin(TestCase):
 
     def test_journey_type_updated(self):
         self.assertEqual(self.driver.journey_type[0], str(self.data.get('journey_type')[0]))
-        self.assertEqual(self.driver.journey_type[1], str(self.data.get('journey_type')[1]))
+        if len(self.driver.journey_type) == 2:
+            self.assertEqual(self.driver.journey_type[1], str(self.data.get('journey_type')[1]))
 
 
     def test_vehicle_name_updated(self):
@@ -147,6 +145,12 @@ class TestUpdateFormInvalid(TestCase):
     def test_pForm_invalid(self):
         self.assertFalse(self.response.context_data['vForm'].is_valid())
 
+    def test_no_of_errors_for_dForm(self):
+        self.assertEqual(len(self.response.context_data['dForm'].errors), 3)
+
+    def test_no_of_errors_for_vForm(self):
+        self.assertEqual(len(self.response.context_data['vForm'].errors), 2)
+
 
 class TestGetUpdateForm(TestCase):
 
@@ -191,3 +195,63 @@ class TestGetLoginedUserMixin(TestCase):
         request.user = user
         with self.assertRaises(Http404):
             response = views.profile_detail_view.as_view()(request)
+
+
+class TestGetLoggedInUserRequestMixin(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password(), is_driver=True)
+        self.driver = self.user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password())
+
+    def test_user_has_a_request(self):
+        self.request = Request.objects.create(driver=self.driver, passenger=self.passenger, 
+        from_address=fake.address(), to_address=fake.address(), request_vehicle_type=fake.random_element(
+        elements=Vehicle.Vehicle_type.values), intercity=fake.random_element(elements=[True, False]))
+        
+        http_request = RequestFactory().get(reverse('update_request'))
+        http_request.user = self.passenger
+        response = views.RequestUpdate.as_view()(http_request)
+        self.assertEqual(
+            views.RequestUpdate.get_queryset(views.profile_detail_view)[0], self.request.driver)
+        
+    def test_request_not_found(self):
+        http_request = RequestFactory().get(reverse('update_request'))
+        http_request.user = self.passenger
+        with self.assertRaises(Http404):
+            response = views.RequestUpdate.as_view()(http_request)
+
+
+class TestGetLoggedInUserRide(TestCase):
+    def setUp(self):
+        user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password(), is_driver=True)
+        self.driver = user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password())
+  
+    def test_ride_exist(self):
+        request = Request.objects.create(driver=self.driver,passenger=self.passenger, 
+        from_address=fake.address(), to_address=fake.address(),
+        request_vehicle_type='T', intercity=True,
+        city = 1, no_of_passengers=3,
+        load=True)
+        
+        self.ride = Ride.objects.get(request=request)
+
+        http_request = RequestFactory().get(reverse('price_confirmation'))
+        http_request.user = self.passenger
+        response = views.PriceConfirmation.as_view()(http_request)
+        self.assertEqual(
+            views.PriceConfirmation.get_queryset(views.PriceConfirmation)[0], self.ride)
+        
+    def test_ride_not_found(self):
+        http_request = RequestFactory().get(reverse('price_confirmation'))
+        http_request.user = self.passenger
+        with self.assertRaises(Http404):
+            response = views.PriceConfirmation.as_view()(http_request)

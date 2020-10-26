@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Dot360s</title>
+      <link rel="stylesheet" href="/static/user/css/bootstrap.css">
+      <link rel="stylesheet" href="/static/user/css/custom_styles.css">
+   </head>
+   <body>
+      <div>
+         <strong>Menu:</strong>
+         <ul>
+            <li><a href="/accounts/email/">Change E-mail</a></li>
+            <li><a href="/accounts/logout/">Sign Out</a></li>
+         </ul>
+      </div>
+      <div class="container">
+         <div class="row">
+            <div class="col-6">
+               <form method="post" action="/request/">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="Om0JTRb4JVqJyjwLoPCw4uNm9lMxP4afeXIZnLQ0tOT5siBfWz8zaQ5sPgS82W4L">
+                  <div id="div_id_from_address" class="form-group">
+                     <label for="id_from_address" class=" requiredField">
+                     From<span class="asteriskField">*</span> </label> 
+                     <div class=""> <input type="text" name="from_address" maxlength="70" class="textinput textInput form-control" required id="id_from_address"> </div>
+                  </div>
+                  <div id="div_id_to_address" class="form-group">
+                     <label for="id_to_address" class=" requiredField">
+                     To<span class="asteriskField">*</span> </label> 
+                     <div class=""> <input type="text" name="to_address" maxlength="70" class="textinput textInput form-control" required id="id_to_address"> </div>
+                  </div>
+                  <div id="div_id_city" class="form-group">
+                     <label for="id_city_0" class=" requiredField">
+                     City<span class="asteriskField">*</span> </label> 
+                     <div class="">
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="city" id="id_city_1" value="1" > <label for="id_city_1" class="form-check-label">
+                           Aba
+                           </label> 
+                        </div>
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="city" id="id_city_2" value="2" > <label for="id_city_2" class="form-check-label">
+                           Umuahia
+                           </label> 
+                        </div>
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="city" id="id_city_3" value="3" > <label for="id_city_3" class="form-check-label">
+                           Port Harcourt
+                           </label> 
+                        </div>
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="city" id="id_city_4" value="4" > <label for="id_city_4" class="form-check-label">
+                           Owerri
+                           </label> 
+                        </div>
+                     </div>
+                  </div>
+                  <div class="form-group">
+                     <div id="div_id_intercity" class="form-check"> <input type="checkbox" name="intercity" class="checkboxinput form-check-input" id="id_intercity"> <label for="id_intercity" class="form-check-label">
+                        Intercity
+                        </label> 
+                     </div>
+                  </div>
+                  <div id="div_id_request_vehicle_type" class="form-group">
+                     <label for="id_request_vehicle_type_0" class=" requiredField">
+                     Vehicle Type<span class="asteriskField">*</span> </label> 
+                     <div class="">
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="request_vehicle_type" id="id_request_vehicle_type_1" value="T" > <label for="id_request_vehicle_type_1" class="form-check-label">
+                           Tricycle
+                           </label> 
+                        </div>
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="request_vehicle_type" id="id_request_vehicle_type_2" value="B" > <label for="id_request_vehicle_type_2" class="form-check-label">
+                           Bus
+                           </label> 
+                        </div>
+                        <div class="form-check"> <input type="radio" class="form-check-input" name="request_vehicle_type" id="id_request_vehicle_type_3" value="C" > <label for="id_request_vehicle_type_3" class="form-check-label">
+                           Car
+                           </label> 
+                        </div>
+                     </div>
+                  </div>
+                  <div id="div_id_no_of_passengers" class="form-group">
+                     <label for="id_no_of_passengers" class=" requiredField">
+                     No of passengers<span class="asteriskField">*</span> </label> 
+                     <div class=""> <input type="number" name="no_of_passengers" value="1" class="numberinput form-control" required id="id_no_of_passengers"> </div>
+                  </div>
+                  <div class="form-group">
+                     <div id="div_id_load" class="form-check"> <input type="checkbox" name="load" class="checkboxinput form-check-input" id="id_load"> <label for="id_load" class="form-check-label">
+                        Load
+                        </label> 
+                     </div>
+                  </div>
+                  <div id="div_id_time" class="form-group">
+                     <label for="id_time" class=" requiredField">
+                     Time<span class="asteriskField">*</span> </label> 
+                     <div class=""> <input type="datetime-local" name="time" class="datetimeinput form-control" required id="id_time"> </div>
+                  </div>
+                  <input type="submit" value="request" id="request">
+               </form>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

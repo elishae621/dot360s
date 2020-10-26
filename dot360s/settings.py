@@ -26,6 +26,7 @@ SECRET_KEY = '-ci2_$ta#b4qj3o=h(23*eb3ls)w_a#!2bm290_m2i@0jlhtun'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# remember to change your payment callback url to the new domain name
 ALLOWED_HOSTS = ['testserver', 'localhost', ]
 
 
@@ -46,12 +47,12 @@ INSTALLED_APPS = [
 
     # 3rd-party apps
     'crispy_forms',
-    'phonenumber_field',
     'multiselectfield',
-
+    
     # allauth
     'allauth',
     'allauth.account',
+    
 ]
 
 SITE_ID = 1
@@ -129,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lagos'
 
 USE_I18N = True
 
@@ -150,7 +151,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
 LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
-LOGIN_URL = reverse_lazy('accounts_login')
+LOGIN_URL = reverse_lazy('account_login')
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -180,3 +181,12 @@ ACCOUNT_FORMS = {
 PHONENUMBER_DB_FORMAT = 'NATIONAL'
 PHONENUMBER_DEFAULT_REGION = 'NG' 
 # phonenumber-field settings end
+
+# paystack settings and keys start
+
+# testing keys start
+PAYSTACK_PUBLIC_KEY = "pk_test_4263b396389084b6ecbe31d54cf07a0a74fe325d"
+PAYSTACK_SECRET_KEY = "sk_test_a648f1e1d722bb8e6649c70659b9a7933ce89776"
+# testing keys end
+
+# paystack settings and keys end

@@ -1,16 +1,13 @@
-from selenium import webdriver
 from django.urls import reverse
 import time
 from faker import Faker
 from user.models import User, Driver
-from phonenumber_field.phonenumber import PhoneNumber
 
 
 class Common(object):
     def Register(driver):
         fake = Faker()
         driver.get("http://localhost:8080" + reverse('account_signup'))
-        time.sleep(2)
 
         email_field = driver.find_element_by_id("id_email")
         email_field.click()
@@ -51,26 +48,35 @@ class Common(object):
         #     r"E:\Picture\Happy birthday Esther ❤️ 20200120_105048.jpg")
 
         driver.find_element_by_id("register").click()
-        driver.get("http://localhost:8080" + reverse('driver_profile_update'))
         
+        driver.get("http://localhost:8080" + reverse('request'))
+        
+        from_address_field = driver.find_element_by_id("id_from_address")
+        from_address_field.click()
+        from_address_field.clear()
+        from_address_field.send_keys(fake.address())
+
+        to_address_field = driver.find_element_by_id("id_to_address")
+        to_address_field.click()
+        to_address_field.clear()
+        to_address_field.send_keys(fake.address())
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
         try:
             all_users = User.objects.all()
             user = all_users.filter(email=email).first()
         except User.DoesNotExist:
             user = Driver.objects.filter(email=email).first()
-        return user
-
-    def Login(user):
-        driver.get("http://localhost:8080" + reverse('account_login'))
-
-        email_field = driver.find_element_by_name("email")
-        email_field.click()
-        email_field.send_keys(user.email)
-
-        password_field = driver.find_element_by_name("password")
-        password_field.click()
-        password_field.send_keys(user.password)
-
-        submit_button = driver.find_element_by_id("login")
-        submit_button.click()
         return user

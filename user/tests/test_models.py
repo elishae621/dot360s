@@ -1,10 +1,8 @@
 from django.test import TestCase
-from user.models import User, Driver, Vehicle, Request, Ride
+from user.models import User, Vehicle, Request, Ride
 from dot360s.settings import INSTALLED_APPS, AUTH_USER_MODEL
-from django.db import transaction
 from faker import Faker
-from phonenumber_field.phonenumber import PhoneNumber
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 
 fake = Faker()
@@ -48,7 +46,6 @@ class TestCreateSuperuser(TestCase):
 
 class TestCreateUser(TestCase):
     def setUp(self):
-        fake = Faker()
         self.user = User.objects.create_user(email=fake.email(),
         firstname=fake.first_name(), lastname=fake.last_name(),
         phone=fake.numerify(text='080########'), password=fake.password())
@@ -65,6 +62,11 @@ class TestCreateUser(TestCase):
     def test_not_drvier(self):
         self.assertFalse(self.user.is_driver)
 
+    def test_international_number_is_valid(self):
+        user2 = User.objects.create_user(email=fake.email(),
+        firstname=fake.first_name(), lastname=fake.last_name(),
+        phone=fake.numerify(text='+234#0########'), password=fake.password())
+
     def test_not_email(self):
         with self.assertRaises(ValueError, msg="You must provide an email address"):
             user = User.objects.create_user(email="", firstname=fake.first_name(), lastname=fake.last_name(),
@@ -73,7 +75,6 @@ class TestCreateUser(TestCase):
 
 class TestUserModel(TestCase):
     def setUp(self):
-        fake = Faker()
         self.user = User.objects.create(
             email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
             phone=fake.numerify(text='080########'), password=fake.password())
@@ -117,7 +118,6 @@ class TestVehicleModel(TestCase):
 
 class TestRequest(TestCase):
     def setUp(self):
-        fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
             phone=fake.numerify(text='080########'),
             password=fake.password(), is_driver=True)
@@ -126,17 +126,19 @@ class TestRequest(TestCase):
             phone=fake.numerify(text='080########'),
             password=fake.password())
 
-        self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
+        self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, 
+        from_address=fake.address(), to_address=fake.address(), request_vehicle_type=fake.random_element(
+        elements=Vehicle.Vehicle_type.values), intercity=fake.random_element(elements=[True, False]))
 
     def test_str_function(self):
         self.assertEqual(str(self.request),
             f"Request: {self.driver}, {self.passenger}")
 
+    def test_get_absolute_url(self):
+        self.assertEqual(self.request.get_absolute_url(), reverse('price_confirmation'))
 
 class TestRide(TestCase):
     def setUp(self):
-        fake = Faker()
-        fake = Faker()
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
             phone=fake.numerify(text='080########'),
             password=fake.password(), is_driver=True)
@@ -146,7 +148,7 @@ class TestRide(TestCase):
             password=fake.password())
         self.request = Request.objects.create(driver=self.driver,
         passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
-        self.ride = Ride.objects.create(request=self.request)
+        self.ride = Ride.objects.filter(request=self.request).first()
 
     def test_str_function(self):
         self.assertEqual(str(self.ride),

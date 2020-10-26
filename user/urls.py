@@ -12,6 +12,16 @@ urlpatterns = [
     path('update/', user_views.driver_update_profile.as_view(),
          name="driver_profile_update"),
 
-    path('request/', user_views.request_view.as_view(), name="request_form")
+    path('request/', user_views.RequestView.as_view(), name='create_request'),
+
+    path('verify-transaction/<str:reference>/', user_views.VerifyTransaction.as_view(), name='verify_transaction'),
+
+    path('price/', user_views.PriceConfirmation.as_view(), name='price_confirmation'),
+
+    path('no-driver/', user_views.NoAvaliableDriver.as_view(), name='no_avaliable_driver'),
+
+    path('update-request/', user_views.RequestUpdate.as_view(), name="update_request"),
+
+    path('delete_request/', user_views.RequestDelete.as_view(), name="delete_request"),
 
 ]
