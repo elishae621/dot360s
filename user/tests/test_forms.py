@@ -3,7 +3,8 @@ from user.forms import (
     UserRegistrationForm,
     DriverProfileUpdateForm,
     VehicleUpdateForm,
-    RequestForm
+    RequestForm,
+    FundAccountForm
 )
 import factory
 from user.models import User, Driver, Vehicle
@@ -57,6 +58,7 @@ class TestVehicleUpdateForm(TestCase):
         self.form = VehicleUpdateForm(data=self.data)
 
     def test_form_is_valid(self):
+        print(self.form.errors)
         self.assertTrue(self.form.is_valid())
 
 
@@ -154,3 +156,17 @@ class TestRequestForm(TestCase):
     def test_form_is_valid(self):
         print(self.form.errors)
         self.assertTrue(self.form.is_valid())
+
+class TestFundAccountForm(TestCase):
+    def setUp(self):
+        self.data = {'amount': fake.random_int(min=100, max=3000)}
+        self.form = FundAccountForm(data=self.data)
+
+    def test_form_is_valid(self):
+        print(self.form.errors)
+        self.assertTrue(self.form.is_valid())
+
+    def test_amount_is_changed_to_kobo(self):
+        self.form.is_valid()
+        self.assertEqual(self.data.get
+        ('amount') * 100, self.form.cleaned_data.get('amount'))

@@ -8,6 +8,9 @@ from django.shortcuts import reverse
 from django.utils import timezone
 from django.urls import reverse_lazy
 from multiselectfield import MultiSelectField
+from django.template.defaultfilters import slugify
+from math import floor
+from time import time
 
 
 class CustomAccountManager(BaseUserManager):
@@ -59,6 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=14, null=True, blank=False, unique=True,
         validators=[RegexValidator(regex="(?:^[+]{1}[0-9]*$)|(?:^0{1}[0-9]{10}$)",
         message="Enter a valid phone number without spaces or hyphens")])
+    account_balance = models.PositiveIntegerField(default=0) # in kobo
 
     objects = CustomAccountManager()
 
@@ -70,6 +74,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_absolute_url(self):
         return reverse_lazy('home')
+
+    def get_full_name(self):
+        return f"{self.firstname} {self.lastname}"
 
 class Driver(models.Model):
 
@@ -153,18 +160,37 @@ class Request(models.Model):
 
 class Ride(models.Model):
 
-    class Ride_status(models.TextChoices):
-        waiting_for_confirmation = 'WC'
-        waiting_for_driver = 'WD'       
-        ongoing = 'ON'
-        completed = 'CO'
+    class Ride_status(models.IntegerChoices):
+        unconfirmed = 1  # a driver has not taking this ride
+        unpaid = 2  # a driver has picked this ride, but it has not been paid for
+        waiting = 3  # paid and has a driver, but waiting for the time of the ride to reach
+        ongoing = 4  # the ride has started but has not been marked as completed
+        completed = 5  # the ride has been marked as completed
 
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request')
-    status = models.CharField(choices=Ride_status.choices,
-    default=Ride_status.waiting_for_confirmation, 
-    max_length=2)
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='ride')
+    status = models.PositiveSmallIntegerField(choices=Ride_status.choices,
+    default=Ride_status.unconfirmed)
     price = models.FloatField(default=100.00)
     reference = models.CharField(max_length=50, default="not yet paid")
 
     def __str__(self):
         return f'Ride => {self.request}'
+
+
+class Order(models.Model):
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request_order')
+    driver = models.ManyToManyField(Driver, related_name='request_driver')
+    time_posted = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)
+    slug = models.SlugField(null=False, unique=True)
+
+    def __str__(self):
+        return f"{self.request.passenger.firstname}'s order"
+
+    def get_absolute_url(self):
+        return reverse("take_order", kwargs={"slug": self.slug})
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = str(slugify(self.request.ride.reference)) + "-" + str(slugify(self.request.from_address) + "-" + str(slugify(floor(time()))))
+        return super().save(*args, **kwargs)

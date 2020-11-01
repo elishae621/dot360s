@@ -1,6 +1,7 @@
 from django import forms
 from user.models import Driver, User, Vehicle, Request
 from django.core.exceptions import ValidationError
+import datetime
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -29,15 +30,17 @@ class VehicleUpdateForm(forms.ModelForm):
         model = Vehicle
         fields = ['name', 'plate_number', 'capacity', 'color', 'vehicle_type']
 
+
 class RequestForm(forms.ModelForm):
     request_vehicle_type = forms.ChoiceField(choices=Vehicle.Vehicle_type.choices, widget=forms.RadioSelect(), label="Vehicle Type")
     city = forms.ChoiceField(choices=Driver.City.choices, widget=forms.RadioSelect())
-    time = forms.DateTimeField(widget=forms.widgets.DateTimeInput(attrs={'type': 'datetime-local'}))
-
+    
     class Meta:
         model = Request
         fields = ['from_address', 'to_address', 'city', 'intercity', 'request_vehicle_type', 'no_of_passengers', 'load', 'time']
-        
+        widgets = {
+            'time': forms.DateTimeInput(format='%Y-%m-%d %H:%M', attrs={'class':'datetimefield'}),
+        }
     def clean_city(self):
         data = self.cleaned_data.get('city')
         list_of_drivers = Driver.objects.filter(location=data)
@@ -102,3 +105,10 @@ class RequestForm(forms.ModelForm):
         return cleaned_data
 
     
+class FundAccountForm(forms.Form):
+    amount = forms.IntegerField(required=True)
+
+    def clean_amount(self):
+        data = self.cleaned_data.get('amount')
+        data *= 100 # convert to kobo
+        return data

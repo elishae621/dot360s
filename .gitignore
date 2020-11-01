@@ -8,3 +8,4 @@ profile_pics
 .pytest_cache
 .vscode
 .pycharm
+env/

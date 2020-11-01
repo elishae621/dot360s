@@ -1,0 +1,34 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+
+
+<p>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</p>
+
+
+
+<h3> Passenger </h3>
+<p>Name: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
+<p>Load: {{ order.request.load}} InterCity: {{ order.request.intercity}} No of passengers: {{ order.request.no_of_passengers }}</p>
+
+<h3> Driver </h3>
+
+<p> Name: {{ ride.request.driver.user.firstname }} 
+    {{ ride.request.driver.user.lastname }}</p>
+<p> Vehicle name = {{ ride.request.driver.vehicle.name }}</p>
+<p> Vehicle detail = {{ ride.request.driver.vehicle.color }} <br>
+    {{ ride.request.driver.vehicle.vehicle_type.label }} <br>
+    {{ ride.request.driver.vehicle.plate_number }}</p>
+<p> Ride reference number = {{ ride.reference }} <br>
+    Ride status = {{ ride.status }}
+    time = {{ ride.request.time }}
+<p>
+
+
+{% if views.request.user.is_driver %}
+    <a href="#" class="btn btn-info">This ride has just began</a>
+    <a href="#" class="btn btn-success"> This ride has been completed</a>
+{% endif %}
+
+
+{% endblock %}

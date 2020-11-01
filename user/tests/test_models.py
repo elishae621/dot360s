@@ -1,8 +1,11 @@
 from django.test import TestCase
-from user.models import User, Vehicle, Request, Ride
+from user.models import User, Vehicle, Request, Ride, Order
 from dot360s.settings import INSTALLED_APPS, AUTH_USER_MODEL
 from faker import Faker
 from django.urls import reverse, reverse_lazy
+from django.template.defaultfilters import slugify
+from math import floor
+from time import time
 
 
 fake = Faker()
@@ -86,6 +89,8 @@ class TestUserModel(TestCase):
         self.assertEqual(self.user.get_absolute_url(), reverse_lazy(
             'home'))
 
+    def test_get_full_name(self):
+        self.assertEqual(self.user.get_full_name(), f"{self.user.firstname} {self.user.lastname}")
 
 class TestDriverModel(TestCase):
     def setUp(self):
@@ -153,3 +158,30 @@ class TestRide(TestCase):
     def test_str_function(self):
         self.assertEqual(str(self.ride),
             f"Ride => Request: {self.driver}, {self.passenger}")
+
+
+class TestOrder(TestCase):
+    def setUp(self):
+        user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password(), is_driver=True)
+        self.driver = user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(), 
+        lastname=fake.last_name(), phone=fake.numerify(text='080########'), password=fake.password())
+        self.request = Request.objects.create(driver=self.driver,
+        passenger=self.passenger, from_address=fake.address(), to_address=fake.address())
+        self.order = Order.objects.filter(request=self.request).first()
+        self.order.driver.add(self.driver)
+        order = self.order
+        order.save()
+
+    def test_str_function(self):
+        self.assertEqual(str(self.order),
+            f"{self.request.passenger.firstname}'s order")
+
+    def test_get_absolute_url(self):
+        self.assertEqual(self.order.get_absolute_url(), reverse('take_order', kwargs={'slug': self.order.slug}))
+
+    def test_slug_is_put_in_save(self):
+        print(self.order.slug)
+        self.assertEqual(self.order.slug, f"{str(slugify(self.request.ride.reference))}-{str(slugify(self.request.from_address))}-{str(slugify(floor(time())))}")

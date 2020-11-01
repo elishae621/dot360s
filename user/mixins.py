@@ -2,9 +2,12 @@ from django.views import generic
 from user.forms import DriverProfileUpdateForm, VehicleUpdateForm
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from user.models import Driver, Request, User, Ride
+from user.models import Driver, Request, User, Ride, Vehicle
 from django.http import Http404
 from faker import Faker
+from django.contrib import messages
+from django.urls import reverse_lazy
+
 fake = Faker()
 
 
@@ -16,7 +19,7 @@ class MustbeDriverMixin(LoginRequiredMixin, UserPassesTestMixin):
             return False 
 
 
-class Update_view(MustbeDriverMixin, generic.UpdateView):
+class Update_view(MustbeDriverMixin):
 
     def setup(self, request, *args, **kwargs):
         self.driver = Driver.objects.filter(
@@ -59,7 +62,7 @@ class Update_view(MustbeDriverMixin, generic.UpdateView):
 
 
 
-class GetLoggedInDriverMixin(LoginRequiredMixin, generic.DetailView):
+class GetLoggedInDriverMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
         pk = self.request.user.id
         user = User.objects.get(pk=pk)
@@ -72,7 +75,7 @@ class GetLoggedInDriverMixin(LoginRequiredMixin, generic.DetailView):
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
 
-class GetLoggedInUserRequestMixin(LoginRequiredMixin, generic.DetailView):
+class GetLoggedInUserRequestMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
         pk = self.request.user.id
         user = User.objects.get(pk=pk)
@@ -86,7 +89,7 @@ class GetLoggedInUserRequestMixin(LoginRequiredMixin, generic.DetailView):
         return obj
 
 
-class GetLoggedInUserRideMixin(LoginRequiredMixin, generic.DetailView):
+class GetLoggedInUserRideMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
         pk = self.request.user.id
         user = User.objects.get(pk=pk)
@@ -100,3 +103,22 @@ class GetLoggedInUserRideMixin(LoginRequiredMixin, generic.DetailView):
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
 
+
+class OrderAcceptedMixin(UserPassesTestMixin):
+    def test_func(self):
+        ride = self.get_object()
+        order = ride.request.request_order
+        order.refresh_from_db()
+        if order.accepted:
+            return True
+        else:
+            return False 
+
+
+class OrderNotAcceptedMixin(OrderAcceptedMixin):
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if user_test_result:
+            return redirect(reverse_lazy('order_detail'))
+        return super().dispatch(request, *args, **kwargs)
+    

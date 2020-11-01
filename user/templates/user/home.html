@@ -2,13 +2,58 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-    {% if user.is_driver %}
-        <h1>{{ user }}, see the rides waiting for you</h1>
-        <p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
+{% if user.is_driver %}
+    <h1>{{ user }}, see the rides waiting for you</h1>
+    <p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
+
+    <h1 class="mb-3">You have {{ orders.paginator.count|yesno:",no" }} orders</h1>
+
+    {% for order in orders %}
+    <div class="media">
+        <div class="media-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-1">
+                        <img class="rounded-circle mr-3 account-img" src="{{ user.driver.image.url }}" />
+                    </div>
+                    <div class="col-lg-10 ml-3">
+                        <h1>{{ order.request.passenger }}</h1>
+                        <p>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</p>
+                        <p>Passenger: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
+                        <p>Load: {{ order.request.load}} InterCity: {{ order.request.intercity}} No of passengers: {{ order.request.no_of_passengers }}</p>
+                    </div>
+                    <a class="btn btn-primary" href="{% url 'take_order' slug=order.slug %}">Check order</a>
+                    <p class="small">Posted on {{ order.time_posted|date:"F d, Y. h:i A" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a class="btn btn-outline-info mb-3" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="btn btn-info mb-3" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="btn btn-outline-info mb-3" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
     {% endif %}
 
-    {% if not user.is_driver %}
-        <h1>{{ user }}, order a ride <a href="{% url 'create_request' %}">here</a></h1>
-    {% endif %}
+{% endif %}
+
+{% if not user.is_driver %}
+    <h1>{{ user }}, order a ride <a href="{% url 'create_request' %}">here</a></h1>
+{% endif %}
 
 {% endblock %}

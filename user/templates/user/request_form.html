@@ -12,6 +12,22 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+<script>
+    // This code activates flatpickr on fields with the 'datetimefield' class when the document has loaded
+    window.addEventListener("DOMContentLoaded", function () {
+        flatpickr(".datetimefield", {
+            enableTime: true,
+            enableSeconds: false,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+        });
+    });
+</script>
+
 <form method="post" action="{% url 'create_request' %}">
     {% csrf_token %}
     {{ form|crispy }}

@@ -1,10 +1,13 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
+from django.urls import reverse_lazy
 from user import views
 from faker import Faker
 from django.urls import reverse
-from user.models import Driver, Request, Ride, User, Vehicle
+from user.models import Driver, Request, Ride, User, Vehicle, Order
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from user.signals import order_accepted
+from unittest.mock import Mock, patch
 
 
 
@@ -212,20 +215,20 @@ class TestGetLoggedInUserRequestMixin(TestCase):
         from_address=fake.address(), to_address=fake.address(), request_vehicle_type=fake.random_element(
         elements=Vehicle.Vehicle_type.values), intercity=fake.random_element(elements=[True, False]))
         
-        http_request = RequestFactory().get(reverse('update_request'))
+        http_request = RequestFactory().get(reverse('create_request'))
         http_request.user = self.passenger
-        response = views.RequestUpdate.as_view()(http_request)
+        response = views.RequestCreate.as_view()(http_request)
         self.assertEqual(
-            views.RequestUpdate.get_queryset(views.profile_detail_view)[0], self.request.driver)
+            views.RequestCreate.get_queryset(views.RequestCreate)[0], self.request)
         
     def test_request_not_found(self):
-        http_request = RequestFactory().get(reverse('update_request'))
+        http_request = RequestFactory().get(reverse('delete_request'))
         http_request.user = self.passenger
         with self.assertRaises(Http404):
-            response = views.RequestUpdate.as_view()(http_request)
+            response = views.RequestDelete.as_view()(http_request)
 
 
-class TestGetLoggedInUserRide(TestCase):
+class TestGetLoggedInUserRideMixin(TestCase):
     def setUp(self):
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
             phone=fake.numerify(text='080########'),
@@ -235,7 +238,21 @@ class TestGetLoggedInUserRide(TestCase):
             phone=fake.numerify(text='080########'),
             password=fake.password())
   
-    def test_ride_exist(self):
+    
+    @patch('user.paystack_api.requests.post')    
+    @patch("user.mixins.messages.add_message")
+    def test_ride_exist(self, message, auth_mock):
+        auth_json = {
+            'status': True, 
+            'message': 'Authorization URL created', 
+            'data': {
+                'authorization_url': 'https://checkout.paystack.com/9mzlnrn30akanzp', 
+                'access_code': '9mzlnrn30akanzp', 
+                'reference': 'yzlei4h480'
+            }
+        }
+        auth_mock.return_value.json.return_value = auth_json
+        message.return_value = Mock()
         request = Request.objects.create(driver=self.driver,passenger=self.passenger, 
         from_address=fake.address(), to_address=fake.address(),
         request_vehicle_type='T', intercity=True,
@@ -243,7 +260,8 @@ class TestGetLoggedInUserRide(TestCase):
         load=True)
         
         self.ride = Ride.objects.get(request=request)
-
+        request.request_order.accepted = True 
+        request.request_order.save()
         http_request = RequestFactory().get(reverse('price_confirmation'))
         http_request.user = self.passenger
         response = views.PriceConfirmation.as_view()(http_request)
@@ -255,3 +273,60 @@ class TestGetLoggedInUserRide(TestCase):
         http_request.user = self.passenger
         with self.assertRaises(Http404):
             response = views.PriceConfirmation.as_view()(http_request)
+
+
+class TestOrderAcceptedMixin(TestCase):
+    def setUp(self):
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
+        phone=fake.numerify(text='080########'))
+        self.passenger.set_password(fake.password())
+        self.passenger.save()
+
+        self.driver_user = User.objects.create(email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
+        phone=fake.numerify(text='080########'), 
+        is_driver=True)
+        self.driver_user.set_password(fake.password())
+        self.driver = Driver.objects.filter(user=self.driver_user).first()
+        self.driver.location= fake.random_element(elements=Driver.City.values)
+        self.driver.status = fake.random_element(elements=Driver.Driver_status.values)
+        self.driver.journey_type = fake.random_elements(elements=Driver.Journey_type.values, unique=True)
+
+        self.request = Request.objects.create(passenger=self.passenger, 
+        from_address=fake.address(), to_address=fake.address(),
+        request_vehicle_type='T', intercity=True,
+        city = 1, no_of_passengers=3,
+        load=True)
+        
+        self.order = Order.objects.filter(request=self.request).first()
+        self.http_request = RequestFactory().get(reverse('price_confirmation'))
+        self.http_request.user = self.passenger
+
+    @patch('user.mixins.messages.add_message')        
+    @patch('user.paystack_api.requests.post')    
+    def test_accessible_for_accepted_order(self, auth, message_mock):
+        auth_response = {
+            'status': True, 
+            'message': 'Authorization URL created', 
+            'data': {
+                'authorization_url': 'https://checkout.paystack.com/9mzlnrn30akanzp', 
+                'access_code': '9mzlnrn30akanzp', 
+                'reference': 'yzlei4h480'
+            }
+        }
+
+        auth.return_value.json.return_value = auth_response
+
+        message_mock.return_value = Mock()
+        order = self.order
+        order.accepted = True
+        order.save()
+        order_accepted.send(sender=Order, Order=order, Driver=self.driver)
+
+        response = views.PriceConfirmation.as_view()(self.http_request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_forbidden_for_not_accepted_order(self):
+        response = views.PriceConfirmation.as_view()(self.http_request)
+        response.client = Client()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse_lazy('unaccepted_request'))

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from user.models import (
-    User, Driver, Vehicle, Request, Ride
+    User, Driver, Vehicle, Request, Ride, Order
 )
 from django.contrib.auth.admin import UserAdmin
 
@@ -64,14 +64,11 @@ class DriverAdminConfig(admin.ModelAdmin):
         }),
     )
 
-
-    # def get_inline_instances(self, request, obj=None):
-    #     if not obj:
-    #         return list()
-    #     return super(UserAdminConfig, self).get_inline_instances(request, obj)
-
-
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('request', 'driver', 'time_posted', 'accepted,')
+    
 admin.site.register(User, UserAdminConfig)
 admin.site.register(Driver, DriverAdminConfig)
 admin.site.register(Request)
 admin.site.register(Ride)
+admin.site.register(Order)
