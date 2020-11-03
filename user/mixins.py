@@ -1,12 +1,11 @@
-from django.views import generic
 from user.forms import DriverProfileUpdateForm, VehicleUpdateForm
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from user.models import Driver, Request, User, Ride, Vehicle
+from user.models import Driver, Request, User, Ride
 from django.http import Http404
 from faker import Faker
-from django.contrib import messages
 from django.urls import reverse_lazy
+from django.contrib import messages
 
 fake = Faker()
 
@@ -74,6 +73,7 @@ class GetLoggedInDriverMixin(LoginRequiredMixin):
             raise Http404(("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
+        
 
 class GetLoggedInUserRequestMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
@@ -102,23 +102,23 @@ class GetLoggedInUserRideMixin(LoginRequiredMixin):
             raise Http404(("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
+        
 
-
-class OrderAcceptedMixin(UserPassesTestMixin):
+class OrderNotAcceptedMixin(UserPassesTestMixin):
     def test_func(self):
         ride = self.get_object()
         order = ride.request.request_order
         order.refresh_from_db()
         if order.accepted:
-            return True
+            return False
         else:
-            return False 
+            return True
 
-
-class OrderNotAcceptedMixin(OrderAcceptedMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
-        if user_test_result:
-            return redirect(reverse_lazy('order_detail'))
+        if not user_test_result:
+            ride = self.get_object()
+            order = ride.request.request_order
+            return redirect(reverse_lazy('order_detail', kwargs={'slug': order.slug}))
         return super().dispatch(request, *args, **kwargs)
     

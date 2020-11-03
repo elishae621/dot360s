@@ -1,4 +1,6 @@
 {% load static %}
+{% include 'tellme/js_inc.html' %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,6 +10,7 @@
     <title>Dot360s</title>
     <link rel="stylesheet" href="{% static 'user/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'user/css/custom_styles.css' %}">
+    <link href="{% static 'tellme/feedback.min.css' %}" rel="stylesheet">
 
     {% block extra_head %}
     {% endblock %}
@@ -30,6 +33,15 @@
 	{% if user.is_authenticated %}
 	<li><a href="{% url 'account_email' %}">Change E-mail</a></li>
 	<li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+  <li><a href="{% url 'home' %}">Home Page</a></li>
+  {% if user.is_driver %}
+    <li><a href="{% url 'driver_profile_detail' %}">Profile</a></li>
+    <li><a href="{% url 'driver_orders' %}">List of Orders</a></li>
+  {% endif %}
+	{% if not user.is_driver %}
+    <li><a href="{% url 'create_request' %}">New Ride</a></li>
+    <li><a href="{% url 'fund_account' %}">Fund Account</a></li>
+  {% endif %}
 	{% else %}
 	<li><a href="{% url 'account_login' %}">Sign In</a></li>
 	<li><a href="{% url 'account_signup' %}">Sign Up</a></li>
@@ -45,7 +57,10 @@
       </div>
     </div>
     {% endblock %}
-    {% block extra_body %}
-    {% endblock %}
+
+    <button type="button" id="feedback-btn" class="btn btn-info vertical-right-aligned">
+        Feedback <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span>
+    </button>
+
   </body>
 </html>

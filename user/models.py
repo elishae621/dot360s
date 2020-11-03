@@ -1,7 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.shortcuts import reverse
@@ -155,23 +154,24 @@ class Request(models.Model):
     def __str__(self):
         return f'Request: {self.driver}, {self.passenger}'
 
-    def get_absolute_url(self):
-        return reverse_lazy('price_confirmation')
-
 class Ride(models.Model):
 
     class Ride_status(models.IntegerChoices):
         unconfirmed = 1  # a driver has not taking this ride
-        unpaid = 2  # a driver has picked this ride, but it has not been paid for
-        waiting = 3  # paid and has a driver, but waiting for the time of the ride to reach
-        ongoing = 4  # the ride has started but has not been marked as completed
-        completed = 5  # the ride has been marked as completed
+        waiting = 2  # has a driver, but waiting for the ride to start
+        ongoing = 3  # the ride has started but has not been marked as completed
+        completed = 4  # the ride has been marked as completed
+
+    class Payment_method(models.IntegerChoices):
+        cash = 1
+        card = 2
 
     request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='ride')
     status = models.PositiveSmallIntegerField(choices=Ride_status.choices,
-    default=Ride_status.unconfirmed)
+        default=Ride_status.unconfirmed)
     price = models.FloatField(default=100.00)
-    reference = models.CharField(max_length=50, default="not yet paid")
+    payment_method = models.PositiveSmallIntegerField(choices=Payment_method.choices, 
+        default=Payment_method.card)
 
     def __str__(self):
         return f'Ride => {self.request}'
@@ -192,5 +192,5 @@ class Order(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = str(slugify(self.request.ride.reference)) + "-" + str(slugify(self.request.from_address) + "-" + str(slugify(floor(time()))))
+            self.slug = str(slugify(floor(time()*10))) + "-" + str(slugify(self.request.from_address))
         return super().save(*args, **kwargs)

@@ -8,8 +8,10 @@
     <div class="col-lg-8">
         <form method="POST">
             {% csrf_token %}
+            This action is irreversible. Are you sure?
             {{ form|crispy }}
-            <button class="btn btn-outline-info" type='submit'>Fund</button>
+            <a href="{% url 'unaccepted_request' %}" class="btn btn-success">Go Back</a>
+            <button class="btn btn-outline-info" type='submit'>Delete</button>
         </form>
     </div>
 </div>

@@ -4,8 +4,8 @@
 
 
 <p>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</p>
-
-
+<p>Payment Method: {{ order.request.ride.payment_method.label }} payment </p>
+<p>Price: {{ order.request.ride.price }}
 
 <h3> Passenger </h3>
 <p>Name: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
@@ -19,15 +19,22 @@
 <p> Vehicle detail = {{ ride.request.driver.vehicle.color }} <br>
     {{ ride.request.driver.vehicle.vehicle_type.label }} <br>
     {{ ride.request.driver.vehicle.plate_number }}</p>
-<p> Ride reference number = {{ ride.reference }} <br>
+<p> 
     Ride status = {{ ride.status }}
     time = {{ ride.request.time }}
 <p>
 
 
-{% if views.request.user.is_driver %}
-    <a href="#" class="btn btn-info">This ride has just began</a>
-    <a href="#" class="btn btn-success"> This ride has been completed</a>
+# from the front end. completed would be disabled unless the order is placed as ongoing 
+ 
+{% if views.request.user == ride.request.driver.user %}
+    {% if order.request.ride.payment_method.label == 'cash' %}
+        <h2>Collect cash amount of {{ order.request.ride.price }} from this user</h2>
+    {% else %}
+        <h2>This ride is a card trip and has already been paid for</h2>
+    {% endif %}
+    <a href="{% url 'ongoing_order' slug=order.slug %}" class="btn btn-info">This ride has just began</a>
+    <a href="{% url 'verify_completed' slug=order.slug %}" class="btn btn-success"> This ride has been completed</a>
 {% endif %}
 
 

@@ -1,16 +1,9 @@
-from user.mixins import MustbeDriverMixin
-import time
-from django.http.response import HttpResponseBadRequest
-import requests
 from django.views import generic
 from user.models import (
     User,
     Driver, Request,
     Ride, Order)
-from user.forms import (
-    RequestForm, 
-    FundAccountForm,
-)
+from user.forms import RequestForm, FundAccountForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from user.mixins import (
@@ -19,8 +12,8 @@ from user.mixins import (
     GetLoggedInUserRequestMixin,
     GetLoggedInUserRideMixin,
     LoginRequiredMixin,
-    OrderAcceptedMixin,
     OrderNotAcceptedMixin,
+    MustbeDriverMixin,
 )
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
@@ -28,15 +21,12 @@ from user.paystack_api import authorize, verify
 from user.signals import order_accepted
 
 
-class Index(generic.RedirectView):
-    permanent = False
-    query_string = True
-
-    def get_redirect_url(self, *args, **kwargs):
+class Index(generic.View):
+    def get(self, request, *args, **kwargs):
         if self.request.user.is_driver:
-            return reverse_lazy('driver_orders')
+            return redirect(reverse_lazy('driver_orders'))
         else:
-            return reverse_lazy('passenger_home')
+            return redirect(reverse_lazy('passenger_home'))
 
 
 class home(LoginRequiredMixin, generic.TemplateView):
@@ -56,7 +46,7 @@ class FundAccount(LoginRequiredMixin, generic.FormView):
         return self.render_to_response(self.get_context_data())
 
 
-class VerifyTransaction(GetLoggedInUserRideMixin, OrderAcceptedMixin, generic.detail.BaseDetailView):
+class VerifyTransaction(generic.detail.BaseDetailView):
     model = User
     
     def get(self, request):
@@ -74,17 +64,6 @@ class VerifyTransaction(GetLoggedInUserRideMixin, OrderAcceptedMixin, generic.de
             return HttpResponseRedirect(reverse_lazy('fund_account'))
 
 
-class driver_update_profile(GetLoggedInDriverMixin, Update_view, generic.UpdateView):
-    """inheriting the main deadly mixin I wrote"""
-    success_url = reverse_lazy('driver_profile_update')
-    template_name = "user/driver_profile_update.html"
-    model = Driver
-
-
-class profile_detail_view(GetLoggedInDriverMixin, generic.DetailView):
-    template_name = "user/driver_profile_detail.html"
-    model = Driver
-
 class RequestCreate(LoginRequiredMixin, generic.CreateView):
     model = Request
     form_class = RequestForm
@@ -95,6 +74,14 @@ class RequestCreate(LoginRequiredMixin, generic.CreateView):
         self.object = form.save(commit=False)
         self.object.passenger = self.request.user
         self.object.save()
+        ride = Ride.objects.get(request=self.object)
+        ride.payment_method = form.cleaned_data.get('payment_method')
+        ride.save()
+        # if card payment was chosen 
+        if form.cleaned_data.get('payment_method') == '2':
+            if self.request.user.account_balance < ride.price:
+                messages.add_message(self.request, messages.ERROR, f"Insufficient Balance. Your ride costs {ride.price} naira.")
+                return HttpResponseRedirect(reverse_lazy('fund_account'))
         valid_drivers = form.cleaned_data['valid_drivers']
         # valid_drivers can't be empty. if it is then form validations are not
         # effective
@@ -115,17 +102,60 @@ class RequestCreate(LoginRequiredMixin, generic.CreateView):
         return HttpResponseRedirect(reverse_lazy('unaccepted_request'))
 
 
+class NoAvaliableDriver(generic.TemplateView):
+    template_name = "user/no_avaliable_driver.html"
+
+
 class UnacceptedRequest(GetLoggedInUserRideMixin,  OrderNotAcceptedMixin, generic.DetailView):
+    model = Ride
     template_name = "user/unaccepted_request.html"
 
 
-class NoAvaliableDriver(OrderNotAcceptedMixin, generic.TemplateView):
-    template_name = "user/no_avaliable_driver.html"
+class RequestListView(generic.ListView):
+    template_name = "user/home.html"
+    context_object_name = 'requests'
+    ordering = ['-time']
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Request.objects.filter(passenger=self.request.user).order_by('-time')
+
+
+class OrderDetail(generic.DetailView):
+    model = Order 
+    template_name = "user/detail_order.html"
+
+
+class AnotherDriver(generic.DetailView):
+    model = Order
+    template_name = "user/another_driver.html"
+
+    def get(self, request, *args, **kwargs):
+        order = self.get_object()
+        order.accepted = False
+        order.save()
+        order.driver.remove(order.request.driver)
+        order.save()
+        order.request.driver = None
+        order.request.save()
+        return HttpResponseRedirect(reverse_lazy('unaccepted_request')) 
 
 
 class RequestDelete(GetLoggedInUserRequestMixin, generic.DeleteView):
     success_url = reverse_lazy("home")
     model = Request
+
+
+class profile_detail_view(GetLoggedInDriverMixin, generic.DetailView):
+    template_name = "user/driver_profile_detail.html"
+    model = Driver
+
+
+class driver_update_profile(GetLoggedInDriverMixin, Update_view, generic.UpdateView):
+    """inheriting the main deadly mixin I wrote"""
+    success_url = reverse_lazy('driver_profile_update')
+    template_name = "user/driver_profile_update.html"
+    model = Driver
 
 
 class OrderListView(MustbeDriverMixin, generic.ListView):
@@ -139,10 +169,6 @@ class OrderListView(MustbeDriverMixin, generic.ListView):
         return Order.objects.filter(driver=driver).filter(accepted=False).order_by('-time_posted')
 
 
-class OrderDetail(MustbeDriverMixin, generic.DetailView):
-    model = Order 
-    template_name = "user/detail_order.html"
-
 class TakeOrder(MustbeDriverMixin, generic.DetailView):
     model = Order
     template_name = "user/take_order.html"
@@ -151,22 +177,22 @@ class TakeOrder(MustbeDriverMixin, generic.DetailView):
         order = self.get_object()
         order.accepted = True 
         order.save()
-        order_accepted.send(sender=Order, Order=self.order, Driver=self.driver)
-        order.request.ride.status = 3
-        order.request.ride.save()
-        if order.request.ride.time >= time.now():
-            order.request.ride.status = 4
-        order.request.ride.save()
+        driver = Driver.objects.get(user=request.user)
+        order_accepted.send(sender=Order, Order=order, Driver=driver)
         return super(TakeOrder, self).get(request, *args, **kwargs)
 
 
-class OngoingOrder(generic.detail.BaseDetailView):
+class OngoingOrder(generic.detail.DetailView):
     model = Order
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        order.request.ride.status = 4
+        order.request.ride.status = 3
         order.request.ride.save()
+        # charge the passenger for ride
+        if order.request.ride.payment_method == 2: 
+            order.request.passenger.account_balance -= order.request.ride.price
+            order.request.passenger.save()
         return super(OngoingOrder, self).get(request, *args, **kwargs)
 
 
@@ -177,7 +203,7 @@ class VerifyCompleted(generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        order.request.ride.status = 5
+        order.request.ride.status = 4
         order.request.ride.save()
         return super(VerifyCompleted, self).get(request, *args, **kwargs)
 

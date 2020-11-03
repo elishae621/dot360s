@@ -139,8 +139,6 @@ class TestRequest(TestCase):
         self.assertEqual(str(self.request),
             f"Request: {self.driver}, {self.passenger}")
 
-    def test_get_absolute_url(self):
-        self.assertEqual(self.request.get_absolute_url(), reverse('price_confirmation'))
 
 class TestRide(TestCase):
     def setUp(self):
@@ -184,4 +182,4 @@ class TestOrder(TestCase):
 
     def test_slug_is_put_in_save(self):
         print(self.order.slug)
-        self.assertEqual(self.order.slug, f"{str(slugify(self.request.ride.reference))}-{str(slugify(self.request.from_address))}-{str(slugify(floor(time())))}")
+        self.assertEqual(self.order.slug, f"{str(slugify(floor(time()*10)))}-{str(slugify(self.request.from_address))}")

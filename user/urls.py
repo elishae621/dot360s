@@ -22,6 +22,8 @@ urlpatterns = [
 
     path('delete-request/', user_views.RequestDelete.as_view(), name="delete_request"),
 
+    path('requests/', user_views.RequestListView.as_view(), name="request_list"),
+
     path('orders/', user_views.OrderListView.as_view(), name="driver_orders"),
 
     path('order/<slug:slug>/', user_views.OrderDetail.as_view(), name="order_detail"),
@@ -30,9 +32,11 @@ urlpatterns = [
 
     path('unaccepted-request/', user_views.UnacceptedRequest.as_view(), name="unaccepted_request"),
 
-    path('verify-completed/<slug:slug>/', user_views.VerifyCompleted.as_view(), name = "verify_uncompleted"), 
+    path('verify-completed/<slug:slug>/', user_views.VerifyCompleted.as_view(), name = "verify_completed"), 
 
     path('fund-account/', user_views.FundAccount.as_view(), name="fund_account"),
 
-    path('ongoing-order/<slug:slug>/', user_views.OngoingOrder.as_view(), name="ongoing_order")
+    path('ongoing-order/<slug:slug>/', user_views.OngoingOrder.as_view(), name="ongoing_order"),
+
+    path('another-driver/<slug:slug>/', user_views.AnotherDriver.as_view(), name="another_driver")
 ]

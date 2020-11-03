@@ -1,6 +1,5 @@
 import requests
 from dot360s.settings import PAYSTACK_PUBLIC_KEY, PAYSTACK_SECRET_KEY
-from user.models import Ride
 
 
 authorization_url = "https://api.paystack.co/transaction/initialize/"

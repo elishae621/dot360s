@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 3rd-party apps
     'crispy_forms',
     'multiselectfield',
+    'tellme',
     
     # allauth
     'allauth',
@@ -205,3 +206,7 @@ PAYSTACK_SECRET_KEY = "sk_test_a648f1e1d722bb8e6649c70659b9a7933ce89776"
 # testing keys end
 
 # paystack settings and keys end
+
+# tellme settings start
+TELLME_FEEDBACK_EMAIL = 'dot360s@gmail.com'
+# tellme settings end

@@ -29,31 +29,59 @@
         </div>
     </div>
     {% endfor %}
-
-    {% if is_paginated %}
-        {% if page_obj.has_previous %}
-            <a class="btn btn-outline-info mb-3" href="?page=1">First</a>
-            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <a class="btn btn-info mb-3" href="?page={{ num }}">{{ num }}</a>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a class="btn btn-outline-info mb-3" href="?page={{ num }}">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.next_page_number }}">Next</a>
-            <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-        {% endif %}
-    {% endif %}
-
 {% endif %}
+
 
 {% if not user.is_driver %}
     <h1>{{ user }}, order a ride <a href="{% url 'create_request' %}">here</a></h1>
+    
+    {% comment %} front end can use this to display only active request and maybe only recent ones {% endcomment %}
+
+    {% for request in requests %}
+    <div class="media">
+        <div class="media-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 ml-3">
+                        <h1>{{ order.request.passenger }}</h1>
+                        <p>From: {{ request.from_address}}  To: {{ request.to_address}}</p>
+                        <p>Passenger: {{ request.passenger.firstname }} {{ request.passenger.lastname }} Time: {{ request.time }}</p>
+                        <p>Load: {{ request.load }} InterCity: {{ request.intercity }} No of passengers: {{ request.no_of_passengers }}</p>
+                    </div>
+                    <p>status: {{ request.request_order.status }}</p>
+                    <p>Accepted: {{ request.request_order.accepted }}</p>
+                    {% if request.request_order.accepted %}
+                        <a class="btn btn-success" href="{% url 'order_detail' slug=request.request_order.slug %}">Details</a>
+                        <a class="btn btn-primary" href="{% url 'delete_request' %}">Deleted Request</a>
+                        <p class="small">Posted on {{ request.request_order.time_posted|date:"F d, Y. h:i A" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
 {% endif %}
+
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-3" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="btn btn-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a class="btn btn-outline-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
 
 {% endblock %}

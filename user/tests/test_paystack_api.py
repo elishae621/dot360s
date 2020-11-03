@@ -1,11 +1,9 @@
-from requests import NullHandler
 from user.paystack_api import authorize, verify 
 from django.test import TestCase
 from faker import Faker
-from user.models import User, Request, Ride, Order
+from user.models import User
 from unittest.mock import Mock,patch
 import pytest
-from user.signals import order_accepted
 import requests
 
 fake = Faker()
