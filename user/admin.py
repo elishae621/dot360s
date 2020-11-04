@@ -134,9 +134,9 @@ class RequestAdmin(admin.ModelAdmin):
 
 
 class RideAdmin(admin.ModelAdmin):
-    list_display = ('request', 'status', 'price', 'payment_method')
+    list_display = ('request', 'status', 'price', 'payment_status', 'payment_method')
     list_filter = ('payment_method', 'status')
-    readonly_fields = ('request', 'status', 'price', 'payment_method')
+    readonly_fields = ('request', 'status', 'price', 'payment_status', 'payment_method')
     fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -144,7 +144,7 @@ class RideAdmin(admin.ModelAdmin):
         }),
         ('Details', {
             'classes': ('wide',),
-            'fields': ('status', 'price', 'payment_method',),
+            'fields': ('status', 'price', 'payment_status', 'payment_method',),
         }),
     )
     search_fields = ('status', 'payment_method',)

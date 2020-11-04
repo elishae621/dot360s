@@ -131,7 +131,7 @@ class TestAuthorizeAndVerify(TestCase):
         reference = auth_response['data'].get("reference")
         verify_response = verify(self.passenger, reference)
         self.passenger.refresh_from_db()
-        self.assertEqual(self.passenger.account_balance, self.old_balance + 27000)
+        self.assertEqual(self.passenger.account_balance, self.old_balance + 270.00)
 
     def test_verify_returns_none_if_unseccessful_request(self):
         verify_response = verify(self.passenger, "somecrapreference")

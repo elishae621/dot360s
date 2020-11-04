@@ -547,7 +547,35 @@ class TestFundAccountView(TestCase):
         self.assertEqual(response.context_data['form'].changed_data, ['amount'])
  
 
-class TestOngoingOrderView(TestCase):
+class TestOngoingOrderViewPaid(TestCase):
+    def setUp(self):
+        user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password(), is_driver=True)
+        self.driver = user.driver
+        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
+            phone=fake.numerify(text='080########'),
+            password=fake.password(), account_balance=300.00)
+        self.old_balance = self.passenger.account_balance
+        self.request = Request.objects.create(driver=self.driver,passenger=self.passenger, 
+        from_address=fake.address(), to_address=fake.address(),
+        request_vehicle_type='T', intercity=True,
+        city = 1, no_of_passengers=3,
+        load=True)
+        self.ride = Ride.objects.get(request=self.request)
+        self.ride.status = 2
+        self.ride.payment_status = 2
+        self.ride.save()
+        self.order = Order.objects.filter(request=self.request).first()
+        kwargs = {'slug': self.order.slug}
+        http_request = RequestFactory().get(reverse_lazy('ongoing_order', kwargs=kwargs))
+        self.response = views.OngoingOrder.as_view()(http_request, **kwargs)
+
+    def test_account_not_charged_if_ride_is_paid(self):
+        self.passenger.refresh_from_db()
+        self.assertEqual(self.passenger.account_balance, self.old_balance)
+
+class TestOngoingOrderViewUnpaid(TestCase):
     def setUp(self):
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
             phone=fake.numerify(text='080########'),
@@ -569,10 +597,13 @@ class TestOngoingOrderView(TestCase):
         http_request = RequestFactory().get(reverse_lazy('ongoing_order', kwargs=kwargs))
         self.response = views.OngoingOrder.as_view()(http_request, **kwargs)
 
-
     def test_ride_status_has_been_changed(self):
         self.ride.refresh_from_db()
         self.assertEqual(self.ride.status, 3)
+
+    def test_ride_payment_status_is_changed_to_paid(self):
+        self.ride.refresh_from_db()
+        self.assertEqual(self.ride.payment_status, 2)
 
     def test_ride_price_has_been_removed_from_balance(self):
         self.passenger.refresh_from_db()

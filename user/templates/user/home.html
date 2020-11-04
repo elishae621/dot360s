@@ -6,8 +6,6 @@
     <h1>{{ user }}, see the rides waiting for you</h1>
     <p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
 
-    <h1 class="mb-3">You have {{ orders.paginator.count|yesno:",no" }} orders</h1>
-
     {% for order in orders %}
     <div class="media">
         <div class="media-body">

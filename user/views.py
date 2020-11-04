@@ -123,7 +123,7 @@ class RequestListView(generic.ListView):
 
 class OrderDetail(generic.DetailView):
     model = Order 
-    template_name = "user/detail_order.html"
+    template_name = "user/order_detail.html"
 
 
 class AnotherDriver(generic.DetailView):
@@ -190,9 +190,12 @@ class OngoingOrder(generic.detail.DetailView):
         order.request.ride.status = 3
         order.request.ride.save()
         # charge the passenger for ride
-        if order.request.ride.payment_method == 2: 
-            order.request.passenger.account_balance -= order.request.ride.price
-            order.request.passenger.save()
+        if order.request.ride.payment_status == 1:
+            if order.request.ride.payment_method == 2: 
+                order.request.passenger.account_balance -= order.request.ride.price
+                order.request.passenger.save()
+            order.request.ride.payment_status = 2
+            order.request.ride.save()
         return super(OngoingOrder, self).get(request, *args, **kwargs)
 
 

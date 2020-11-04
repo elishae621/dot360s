@@ -11,7 +11,7 @@ def authorize(user, amount):
         'Content_Type': "application/json"
     }
     data = {
-        'key': f"{PAYSTACK_PUBLIC_KEY}",
+        'key': f"{PAYSTACK_SECRET_KEY}",
         'email': user.email,
         'phone': user.phone,
         'firstname': user.firstname,
@@ -33,11 +33,11 @@ def authorize(user, amount):
 def verify(user, reference):
     headers = {'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}'}
     try:
-        response = requests.get(f"https://api.paystack.co/transaction/verify/:{reference}", headers=headers)
+        response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
         response_json = response.json()
         if response.ok:
             if response_json.get('status'):
-                user.account_balance += response_json['data'].get('amount')
+                user.account_balance += response_json['data'].get('amount') / 100
                 user.save()
             return response_json
     except:

@@ -61,7 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=14, null=True, blank=False, unique=True,
         validators=[RegexValidator(regex="(?:^[+]{1}[0-9]*$)|(?:^0{1}[0-9]{10}$)",
         message="Enter a valid phone number without spaces or hyphens")])
-    account_balance = models.PositiveIntegerField(default=0) # in kobo
+    account_balance = models.FloatField(default=0) # in kobo
 
     objects = CustomAccountManager()
 
@@ -166,10 +166,15 @@ class Ride(models.Model):
         cash = 1
         card = 2
 
+    class Payment_status(models.IntegerChoices):
+        unpaid = 1
+        paid = 2
+
     request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='ride')
     status = models.PositiveSmallIntegerField(choices=Ride_status.choices,
         default=Ride_status.unconfirmed)
     price = models.FloatField(default=100.00)
+    payment_status = models.PositiveSmallIntegerField(choices=Payment_status.choices, default=Payment_status.unpaid)
     payment_method = models.PositiveSmallIntegerField(choices=Payment_method.choices, 
         default=Payment_method.card)
 
