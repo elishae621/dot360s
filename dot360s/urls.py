@@ -17,13 +17,25 @@ from django.conf.urls.static import static
 from django.urls import include, path
 from django.contrib import admin
 from django.conf import settings
+from rest_framework import routers
+from rest_api import views as rest_views
 
+
+router = routers.DefaultRouter()
+router.register(r'users', rest_views.UserViewSet)
+router.register(r'drivers', rest_views.DriverViewSet)
+router.register(r'vehicle', rest_views.VehicleViewSet)
+router.register(r'request', rest_views.RequestViewSet)
+router.register(r'ride', rest_views.RideViewSet)
+router.register(r'order', rest_views.OrderViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user.urls')),
     path('accounts/', include('allauth.urls')),
     path('tellme/', include('tellme.urls')),
+    path('rest/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
 

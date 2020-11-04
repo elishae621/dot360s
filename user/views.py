@@ -9,7 +9,6 @@ from django.http import HttpResponseRedirect
 from user.mixins import (
     Update_view, 
     GetLoggedInDriverMixin, 
-    GetLoggedInUserRequestMixin,
     GetLoggedInUserRideMixin,
     LoginRequiredMixin,
     OrderNotAcceptedMixin,
@@ -78,7 +77,7 @@ class RequestCreate(LoginRequiredMixin, generic.CreateView):
         ride.payment_method = form.cleaned_data.get('payment_method')
         ride.save()
         # if card payment was chosen 
-        if form.cleaned_data.get('payment_method') == '2':
+        if form.cleaned_data.get('payment_method') == 'card':
             if self.request.user.account_balance < ride.price:
                 messages.add_message(self.request, messages.ERROR, f"Insufficient Balance. Your ride costs {ride.price} naira.")
                 return HttpResponseRedirect(reverse_lazy('fund_account'))
@@ -118,7 +117,7 @@ class RequestListView(generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Request.objects.filter(passenger=self.request.user).order_by('-time')
+        return Request.objects.filter(passenger=self.request.user).exclude(ride__status="cancelled").order_by('-time')
 
 
 class OrderDetail(generic.DetailView):
@@ -141,9 +140,16 @@ class AnotherDriver(generic.DetailView):
         return HttpResponseRedirect(reverse_lazy('unaccepted_request')) 
 
 
-class RequestDelete(GetLoggedInUserRequestMixin, generic.DeleteView):
+class CancelRequest(GetLoggedInUserRideMixin, generic.DeleteView):
     success_url = reverse_lazy("home")
     model = Request
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.status = "cancelled"
+        self.object.save()
+        return HttpResponseRedirect(success_url)
 
 
 class profile_detail_view(GetLoggedInDriverMixin, generic.DetailView):
@@ -166,7 +172,7 @@ class OrderListView(MustbeDriverMixin, generic.ListView):
 
     def get_queryset(self):
         driver = get_object_or_404(Driver, user=self.request.user)
-        return Order.objects.filter(driver=driver).filter(accepted=False).order_by('-time_posted')
+        return Order.objects.filter(driver=driver).exclude(request__ride__status="cancelled").filter(accepted=False).order_by('-time_posted')
 
 
 class TakeOrder(MustbeDriverMixin, generic.DetailView):
@@ -187,14 +193,14 @@ class OngoingOrder(generic.detail.DetailView):
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        order.request.ride.status = 3
+        order.request.ride.status = "ongoing"
         order.request.ride.save()
         # charge the passenger for ride
-        if order.request.ride.payment_status == 1:
-            if order.request.ride.payment_method == 2: 
+        if order.request.ride.payment_status == "unpaid":
+            if order.request.ride.payment_method == "card": 
                 order.request.passenger.account_balance -= order.request.ride.price
                 order.request.passenger.save()
-            order.request.ride.payment_status = 2
+            order.request.ride.payment_status = "paid"
             order.request.ride.save()
         return super(OngoingOrder, self).get(request, *args, **kwargs)
 
@@ -206,7 +212,10 @@ class VerifyCompleted(generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
-        order.request.ride.status = 4
+        order.request.ride.status = "completed"
         order.request.ride.save()
         return super(VerifyCompleted, self).get(request, *args, **kwargs)
 
+
+# history of the request is avaliable, but I don't really 
+# the best way to order it and where it should be

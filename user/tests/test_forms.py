@@ -150,7 +150,7 @@ class TestRequestForm(TestCase):
             'no_of_passengers': fake.random_int(min=1, max=20), 
             'load': fake.random_element(elements=[False, True]), 
             'time': fake.date_time(),
-            'payment_method': fake.random_element(elements=[1,2])
+            'payment_method': fake.random_element(elements=["cash"])
         }
         self.form = RequestForm(data=self.data)
         

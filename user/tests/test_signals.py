@@ -104,4 +104,4 @@ class TestOrderAccepted(TestCase):
         self.assertEqual(self.request.driver, self.driver)
 
     def test_that_ride_status_is_now_unpaid_and_confirmed(self):
-        self.assertEqual(self.order.request.ride.status, 2)
+        self.assertEqual(self.order.request.ride.status, "waiting")

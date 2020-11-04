@@ -2,6 +2,7 @@ from django.urls import path, re_path
 from user import views as user_views
 
 
+
 urlpatterns = [
 
     path('', user_views.Index.as_view(), name="home"),
@@ -20,7 +21,7 @@ urlpatterns = [
 
     path('no-driver/', user_views.NoAvaliableDriver.as_view(), name='no_avaliable_driver'),
 
-    path('delete-request/', user_views.RequestDelete.as_view(), name="delete_request"),
+    path('delete-request/', user_views.CancelRequest.as_view(), name="delete_request"),
 
     path('requests/', user_views.RequestListView.as_view(), name="request_list"),
 

@@ -52,7 +52,7 @@ class TestCreateRequest(TestCase):
             'no_of_passengers': fake.random_int(min=1, max=20), 
             'load': fake.random_element(elements=[False, True]), 
             'time': fake.date_time(), 
-            'payment_method': 1
+            'payment_method': "cash"
         }
         self.driver.location = self.data.get('city')
         self.driver.status = 'AV'
@@ -68,14 +68,7 @@ class TestCreateRequest(TestCase):
         self.response = views.RequestCreate.as_view()(self.request)
         self.response.client = Client()
         self.request_created = Request.objects.filter(
-            from_address=self.data.get('from_address')).filter(
-            to_address=self.data.get('to_address')).filter(
-            intercity=self.data.get('intercity')).filter(
-            city=self.data.get('city')).filter(
-            request_vehicle_type=self.data.get('request_vehicle_type')).filter(
-            no_of_passengers=self.data.get('no_of_passengers')).filter(
-            load=self.data.get('load')).filter(
-            time=self.data.get('time')).first()    
+            from_address=self.data.get('from_address')).first()    
         self.order = Order.objects.filter(request=self.request_created).first()
         self.order.driver.add(self.driver)
         self.order.save()
@@ -110,7 +103,7 @@ class TestCreateRequest(TestCase):
             'no_of_passengers': fake.random_int(min=1, max=20), 
             'load': fake.random_element(elements=[False, True]), 
             'time': fake.date_time(), 
-            'payment_method': 2
+            'payment_method': "card"
         }
         self.driver.location = self.data.get('city')
         self.driver.status = 'AV'
@@ -141,7 +134,7 @@ class TestCreateRequest(TestCase):
             'no_of_passengers': fake.random_int(min=1, max=20), 
             'load': fake.random_element(elements=[False, True]), 
             'time': fake.date_time(), 
-            'payment_method': 2
+            'payment_method': "card"
         }
         self.driver.location = self.data.get('city')
         self.driver.status = 'AV'
@@ -173,7 +166,7 @@ class TestCreateRequest(TestCase):
             'no_of_passengers': fake.random_int(min=1, max=20), 
             'load': fake.random_element(elements=[False, True]), 
             'time': fake.date_time(),
-            'payment_method': 1
+            'payment_method': "cash"
         }
         # driver is in city but not avaliable
         self.driver.location = self.data.get('city')
@@ -209,7 +202,7 @@ class TestCreateRequest(TestCase):
         self.assertTrue(Order.objects.filter(driver__user=self.driver.user))
 
 
-class TestDeleteRequest(TestCase):
+class TestCancelRequest(TestCase):
     def setUp(self):
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
             phone=fake.numerify(text='080########'),
@@ -228,14 +221,12 @@ class TestDeleteRequest(TestCase):
         self.ride = Ride.objects.get(request=self.request)
         self.http_request = RequestFactory().post(reverse('delete_request'))
         self.http_request.user = self.passenger
-        self.response = views.RequestDelete.as_view()(self.http_request)
+        self.response = views.CancelRequest.as_view()(self.http_request)
         self.response.client = Client()
         
-    def test_request_is_deleted(self):
-        self.assertFalse(Request.objects.filter(passenger=self.passenger))
-
-    def test_ride_is_deleted(self):
-        self.assertFalse(Ride.objects.filter(request__isnull=True))
+    def test_ride_is_cancelled(self):
+        self.ride.refresh_from_db()
+        self.assertEqual(self.ride.status , "cancelled")
 
     def test_success_url_redirect(self):
         self.assertEqual(self.response.status_code, 302)
@@ -423,11 +414,10 @@ class TestRequestListView(TestCase):
         self.response = views.RequestListView.as_view()(self.http_request)
 
     def test_get_queryset(self):
-        request_queryset = Request.objects.filter(passenger=self.http_request.user).order_by('-time')
+        request_queryset = Request.objects.filter(passenger=self.http_request.user).exclude(ride__status="cancelled").order_by('-time')
         self.assertIsInstance(self.response.context_data, dict)
         self.assertEqual(
             list(self.response.context_data['requests']), list(request_queryset))
-
 
 
 class TestOrderListView(TestCase):
@@ -441,7 +431,7 @@ class TestOrderListView(TestCase):
         self.response = views.OrderListView.as_view()(self.http_request)
 
     def test_get_queryset(self):
-        driver_order_queryset = Order.objects.filter(driver=self.driver).order_by('-time_posted')
+        driver_order_queryset = Order.objects.filter(driver=self.driver).exclude(request__ride__status="cancelled").order_by('-time_posted')
         self.assertIsInstance(self.response.context_data, dict)
         self.assertEqual(
             list(self.response.context_data['orders']), list(driver_order_queryset))
@@ -563,8 +553,8 @@ class TestOngoingOrderViewPaid(TestCase):
         city = 1, no_of_passengers=3,
         load=True)
         self.ride = Ride.objects.get(request=self.request)
-        self.ride.status = 2
-        self.ride.payment_status = 2
+        self.ride.status = "waiting"
+        self.ride.payment_status = "card"
         self.ride.save()
         self.order = Order.objects.filter(request=self.request).first()
         kwargs = {'slug': self.order.slug}
@@ -599,11 +589,11 @@ class TestOngoingOrderViewUnpaid(TestCase):
 
     def test_ride_status_has_been_changed(self):
         self.ride.refresh_from_db()
-        self.assertEqual(self.ride.status, 3)
+        self.assertEqual(self.ride.status, "ongoing")
 
     def test_ride_payment_status_is_changed_to_paid(self):
         self.ride.refresh_from_db()
-        self.assertEqual(self.ride.payment_status, 2)
+        self.assertEqual(self.ride.payment_status, "paid")
 
     def test_ride_price_has_been_removed_from_balance(self):
         self.passenger.refresh_from_db()
@@ -633,7 +623,7 @@ class TestVerifyCompletedView(TestCase):
 
     def test_ride_status_has_been_changed_to_completed(self):
         self.ride.refresh_from_db()
-        self.assertEqual(self.ride.status, 4)
+        self.assertEqual(self.ride.status, "completed")
 
 
 class TestRequestAnotherDriver(TestCase):
@@ -681,7 +671,6 @@ class TestRequestAnotherDriver(TestCase):
     def test_driver2_remains_in_drivers(self):
         self.request.refresh_from_db()
         self.assertTrue(Order.objects.filter(driver=self.driver2).first())
-
     
     def test_redirect(self):
         self.assertEqual(self.response.status_code, 302)

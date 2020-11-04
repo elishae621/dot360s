@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'multiselectfield',
     'tellme',
+    'rest_framework',
     
     # allauth
     'allauth',
@@ -191,22 +192,27 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 ACCOUNT_FORMS = {
     'signup': 'user.forms.UserRegistrationForm',
 }
-# django allauth settings end
+
 
 # phonenumber-field settings start
 PHONENUMBER_DB_FORMAT = 'NATIONAL'
 PHONENUMBER_DEFAULT_REGION = 'NG' 
-# phonenumber-field settings end
+
 
 # paystack settings and keys start
-
-# testing keys start
 PAYSTACK_PUBLIC_KEY = "pk_test_4263b396389084b6ecbe31d54cf07a0a74fe325d"
 PAYSTACK_SECRET_KEY = "sk_test_a648f1e1d722bb8e6649c70659b9a7933ce89776"
-# testing keys end
 
-# paystack settings and keys end
 
 # tellme settings start
 TELLME_FEEDBACK_EMAIL = 'dot360s@gmail.com'
-# tellme settings end
+
+
+# rest_framework start 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}

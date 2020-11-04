@@ -189,4 +189,4 @@ admin.site.register(Ride, RideAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.unregister(Group)
 
-admin.site.site_header = "Dot360s Admin App"
+admin.site.site_header = "Dot360s Admin"

@@ -79,11 +79,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Driver(models.Model):
 
-    class City(models.IntegerChoices):
-        Aba = 1
-        Umuahia = 2
-        Port_Harcourt = 3
-        Owerri = 4
+    class City(models.TextChoices):
+        Aba = "aba"
+        Umuahia = "umuahia"
+        Port_Harcourt = "port harcourt"
+        Owerri = "owerri"
 
     class Journey_type(models.TextChoices):
         within_the_city = 'IN'
@@ -97,8 +97,8 @@ class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
         limit_choices_to={'is_driver': True})
     image = models.ImageField(_('Profile Picture'), default="default.jpg", upload_to="profile_pics/")
-    location = models.PositiveIntegerField(_('Present City'),
-        choices=City.choices, null=True, blank=True)
+    location = models.CharField(_('Present City'),
+        max_length=20, choices=City.choices, null=True, blank=True)
     status = models.CharField(_('Status'),
         choices=Driver_status.choices, default=Driver_status.Not_Avaliable,
         max_length=2)
@@ -122,7 +122,7 @@ class Vehicle(models.Model):
     owner = models.OneToOneField(Driver, on_delete=models.CASCADE, related_name='vehicle')
     name = models.CharField(max_length=20, null=True, blank=True)
     plate_number = models.CharField(max_length=15, null=True, blank=True)
-    color = models.CharField(max_length=15, null=True, blank=True)
+    color = models.CharField(max_length=20, null=True, blank=True)
     capacity = models.PositiveSmallIntegerField(null=True, blank=True)
     vehicle_type = models.CharField(choices=Vehicle_type.choices, null=True, blank=True,
     max_length=1)
@@ -141,8 +141,8 @@ class Request(models.Model):
         on_delete=models.SET_NULL, null=True)
     from_address = models.CharField(_('From'), max_length=70, null=True)
     to_address = models.CharField(_('To'), max_length=70, null=True)
-    city = models.PositiveSmallIntegerField(choices=Driver.City.choices,
-        null=True, blank=True)
+    city = models.CharField(choices=Driver.City.choices,
+        max_length=20, null=True, blank=True)
     no_of_passengers = models.IntegerField(default=1)
     intercity = models.BooleanField(default=False)
     load = models.BooleanField(default=False)
@@ -156,26 +156,27 @@ class Request(models.Model):
 
 class Ride(models.Model):
 
-    class Ride_status(models.IntegerChoices):
-        unconfirmed = 1  # a driver has not taking this ride
-        waiting = 2  # has a driver, but waiting for the ride to start
-        ongoing = 3  # the ride has started but has not been marked as completed
-        completed = 4  # the ride has been marked as completed
+    class Ride_status(models.TextChoices):
+        unconfirmed = "unconfirmed"  # a driver has not taking this ride
+        waiting = "waiting"  # has a driver, but waiting for the ride to start
+        ongoing = "ongoing"  # the ride has started but has not been marked as completed
+        completed = "completed"  # the ride has been marked as completed
+        cancelled = "cancelled" # the ride is deleted at any stage
 
-    class Payment_method(models.IntegerChoices):
-        cash = 1
-        card = 2
+    class Payment_method(models.TextChoices):
+        cash = "cash"
+        card = "card"
 
-    class Payment_status(models.IntegerChoices):
-        unpaid = 1
-        paid = 2
+    class Payment_status(models.TextChoices):
+        unpaid = "unpaid"
+        paid = "paid"
 
     request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='ride')
-    status = models.PositiveSmallIntegerField(choices=Ride_status.choices,
+    status = models.CharField(max_length=11, choices=Ride_status.choices,
         default=Ride_status.unconfirmed)
     price = models.FloatField(default=100.00)
-    payment_status = models.PositiveSmallIntegerField(choices=Payment_status.choices, default=Payment_status.unpaid)
-    payment_method = models.PositiveSmallIntegerField(choices=Payment_method.choices, 
+    payment_status = models.CharField(max_length=6, choices=Payment_status.choices, default=Payment_status.unpaid)
+    payment_method = models.CharField(max_length=6,  choices=Payment_method.choices, 
         default=Payment_method.card)
 
     def __str__(self):

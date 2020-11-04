@@ -198,33 +198,6 @@ class TestGetLoginedUserMixin(TestCase):
             response = views.profile_detail_view.as_view()(request)
 
 
-class TestGetLoggedInUserRequestMixin(TestCase):
-    def setUp(self):
-        self.user = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=fake.numerify(text='080########'),
-            password=fake.password(), is_driver=True)
-        self.driver = self.user.driver
-        self.passenger = User.objects.create(email=fake.email(), firstname=fake.first_name(),lastname=fake.last_name(),
-            phone=fake.numerify(text='080########'),
-            password=fake.password())
-
-    def test_user_has_a_request(self):
-        self.request = Request.objects.create(driver=self.driver, passenger=self.passenger, 
-        from_address=fake.address(), to_address=fake.address(), request_vehicle_type=fake.random_element(
-        elements=Vehicle.Vehicle_type.values), intercity=fake.random_element(elements=[True, False]))
-        
-        http_request = RequestFactory().get(reverse('create_request'))
-        http_request.user = self.passenger
-        response = views.RequestCreate.as_view()(http_request)
-        self.assertEqual(
-            views.RequestCreate.get_queryset(views.RequestCreate)[0], self.request)
-        
-    def test_request_not_found(self):
-        http_request = RequestFactory().get(reverse('delete_request'))
-        http_request.user = self.passenger
-        with self.assertRaises(Http404):
-            response = views.RequestDelete.as_view()(http_request)
-
 
 class TestGetLoggedInUserRideMixin(TestCase):
     def setUp(self):

@@ -73,20 +73,6 @@ class GetLoggedInDriverMixin(LoginRequiredMixin):
             raise Http404(("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
-        
-
-class GetLoggedInUserRequestMixin(LoginRequiredMixin):
-    def get_object(self, queryset=None):
-        pk = self.request.user.id
-        user = User.objects.get(pk=pk)
-        queryset = Request.objects.filter(passenger=user)
-        if queryset:
-            # Get the single item from the filtered queryset
-            obj = queryset.last()
-        else:
-            raise Http404(("No %(verbose_name)s found matching the query") %
-                          {'verbose_name': queryset.model._meta.verbose_name})
-        return obj
 
 
 class GetLoggedInUserRideMixin(LoginRequiredMixin):
