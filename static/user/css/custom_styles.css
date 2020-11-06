@@ -1,0 +1,25 @@
+.progress_text_left, .progress_text_right {
+    position: absolute;
+    bottom: 5px;
+}
+.progress_text_left {
+    left: 5px;
+}
+.progress_text_right {
+    right: 5px;
+}
+.progress_bar {
+    position: relative;
+}
+.account_img {
+    height: 70px !important;
+    color: darkolivegreen
+}
+.vertical-right-aligned {
+    transform: rotate(-90deg);
+    transform-origin: 100% 100%;
+    position: fixed;
+    right: 0;
+    top: 50%;
+    z-index: 100;
+}
