@@ -31,10 +31,11 @@ router.register(r'order', rest_views.OrderViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('user.urls')),
+    path('', include('main.urls')),
+    path('user/', include('user.urls')),
     path('accounts/', include('allauth.urls')),
     path('tellme/', include('tellme.urls')),
-    path('rest/', include(router.urls)),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 

@@ -1,8 +1,8 @@
-from user.paystack_api import authorize, verify 
+from main.paystack_api import authorize, verify 
 from django.test import TestCase
 from faker import Faker
 from user.models import User
-from unittest.mock import Mock,patch
+from unittest.mock import Mock, patch
 import pytest
 import requests
 
@@ -19,7 +19,7 @@ class TestAuthorizeAndVerify(TestCase):
             phone=fake.numerify(text='080########'), password=fake.password())
         self.old_balance = self.passenger.account_balance
 
-    @patch('user.paystack_api.requests.post')    
+    @patch('main.paystack_api.requests.post')    
     def test_auth_response_status_is_true(self, auth_mock):
         auth_json = {
             'status': True, 
@@ -35,7 +35,7 @@ class TestAuthorizeAndVerify(TestCase):
         auth_response = authorize(user=self.passenger, amount=fake.random_int(min=1000, max=5000))
         self.assertTrue(auth_response.get('status'))
 
-    @patch('user.paystack_api.requests.post')    
+    @patch('main.paystack_api.requests.post')    
     def test_account_is_not_funded_if_status_is_false(self, auth_mock):
         auth_json = {
             'status': False, 
@@ -54,7 +54,7 @@ class TestAuthorizeAndVerify(TestCase):
         auth_response = authorize(self.passenger, fake.random_int(min=100, max=4000))
         self.assertEqual(auth_response, None)
 
-    @patch('user.paystack_api.requests.post')    
+    @patch('main.paystack_api.requests.post')    
     def test_auth_returns_none_if_response_not_ok(self, auth_mock):
         auth_mock.return_value = Mock(ok=False)
         auth_response = authorize(self.passenger, fake.random_int(min=100, max=2000))
@@ -62,8 +62,8 @@ class TestAuthorizeAndVerify(TestCase):
         self.assertEqual(auth_response, None)
 
     
-    @patch('user.paystack_api.requests.get')
-    @patch('user.paystack_api.requests.post')    
+    @patch('main.paystack_api.requests.get')
+    @patch('main.paystack_api.requests.post')    
     def test_verify_response_status_is_true(self, auth_mock, verify_mock):
         auth_json = {
             'status': True, 
@@ -97,8 +97,8 @@ class TestAuthorizeAndVerify(TestCase):
         verify_response = verify(self.passenger, reference)
         self.assertTrue(verify_response.get('status'))
   
-    @patch('user.paystack_api.requests.get')
-    @patch('user.paystack_api.requests.post')    
+    @patch('main.paystack_api.requests.get')
+    @patch('main.paystack_api.requests.post')    
     def test_user_account_balance_changes_when_transaction_verified(self, auth_mock, verify_mock):
         auth_json = {
             'status': True, 
@@ -137,7 +137,7 @@ class TestAuthorizeAndVerify(TestCase):
         verify_response = verify(self.passenger, "somecrapreference")
         self.assertEqual(verify_response, None)
 
-    @patch('user.paystack_api.requests.get')    
+    @patch('main.paystack_api.requests.get')    
     def test_verify_returns_none_if_response_not_ok(self, verify_mock):
         verify_mock.return_value = Mock(ok=False)
         verify_response = verify(self.passenger, "some_reference")
@@ -159,7 +159,7 @@ class LivePaystackTest(TestCase):
     def test_paystack_initialization_response_keys(self):
         auth_response = authorize(self.passenger, fake.random_int(min=200, max=3000))
         auth_keys = auth_response.keys()
-        with patch('user.paystack_api.requests.post') as auth_mock:
+        with patch('main.paystack_api.requests.post') as auth_mock:
             auth_json = {
                 'status': True, 
                 'message': 'Authorization URL created', 
@@ -185,7 +185,7 @@ class LivePaystackTest(TestCase):
         reference = auth_response['data'].get('reference')
         verify_response = verify(self.passenger, reference)
         verify_keys = verify_response.keys()
-        with patch('user.paystack_api.requests.get') as verify_mock:    
+        with patch('main.paystack_api.requests.get') as verify_mock:    
             verify_json = {
                 "status": True,
                 "message": "Verification successful",

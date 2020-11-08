@@ -1,4 +1,5 @@
-from user.models import User, Driver, Vehicle, Request, Ride, Order
+from user.models import User, Driver, Vehicle
+from main.models import Request, Ride, Order
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_api.serializers import UserSerializer, DriverSerializer, VehicleSerializer, RequestSerializer, RideSerializer, OrderSerializer

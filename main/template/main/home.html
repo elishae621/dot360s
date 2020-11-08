@@ -50,7 +50,7 @@
                     <p>Accepted: {{ request.request_order.accepted }}</p>
                     {% if request.request_order.accepted %}
                         <a class="btn btn-success" href="{% url 'order_detail' slug=request.request_order.slug %}">Details</a>
-                        <a class="btn btn-primary" href="{% url 'delete_request' %}">Deleted Request</a>
+                        <a class="btn btn-primary" href="{% url 'cancel_request' %}">Deleted Request</a>
                         <p class="small">Posted on {{ request.request_order.time_posted|date:"F d, Y. h:i A" }}</p>
                     {% endif %}
                 </div>

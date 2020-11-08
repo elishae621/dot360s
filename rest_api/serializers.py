@@ -1,4 +1,5 @@
-from user.models import User, Driver, Vehicle, Request, Ride, Order
+from user.models import User, Driver, Vehicle
+from main.models import Request, Ride, Order
 from rest_framework import serializers
 
 

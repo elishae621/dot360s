@@ -27,7 +27,7 @@ SECRET_KEY = '-ci2_$ta#b4qj3o=h(23*eb3ls)w_a#!2bm290_m2i@0jlhtun'
 DEBUG = True
 
 # remember to change your payment callback url to the new domain name
-ALLOWED_HOSTS = ['testserver', 'localhost', ]
+ALLOWED_HOSTS = ['testserver', 'localhost', 'elishae621.pythonanywhere.com']
 
 
 # Application definition
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
 
     # local apps
     'user.apps.UserConfig',
+    'main.apps.MainConfig',
+    'AdminChat.apps.AdminchatConfig',
 
     # 3rd-party apps
     'crispy_forms',
@@ -151,11 +153,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SAMESITE = 'None'
-# SESSION_COOKIE_SAMESITE = 'None'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
@@ -172,6 +169,14 @@ LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
 LOGIN_URL = reverse_lazy('account_login')
 
 AUTH_USER_MODEL = 'user.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'Dot360.official@gmail.com'
+EMAIL_HOST_PASSWORD = 'Dot11111'
+
 
 # django allauth settings starts
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
@@ -206,7 +211,7 @@ PAYSTACK_SECRET_KEY = "sk_test_a648f1e1d722bb8e6649c70659b9a7933ce89776"
 
 
 # tellme settings start
-TELLME_FEEDBACK_EMAIL = 'dot360s@gmail.com'
+TELLME_FEEDBACK_EMAIL = EMAIL_HOST_USER
 
 
 # rest_framework start 
