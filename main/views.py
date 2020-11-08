@@ -15,7 +15,7 @@ from main.signals import order_accepted
 
 
 
-class Index(generic.View):
+class Index(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         if self.request.user.is_driver:
             return redirect(reverse_lazy('driver_orders'))
