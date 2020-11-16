@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<a class="btn btn-info" href="{% url 'withdrawal_list' %}">List of Withdrawals</a>
+
+<form method="post" action="{% url 'create_withdrawal' %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" value="Request Withdrawal" id="request">
+</form>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "main/base.html" %}
+{% block content %}
+
+<h1>{{ user }}, see the rides waiting for you</h1>
+<p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
+
+{% if user.driver.status == 'BU' and current_order %}
+    Current order: 
+    <a class="btn btn-info" href="{% url 'order_detail' slug=current_order.slug %}">Current Ride</a>
+{% endif %}
+
+<p>Your Rides</p>
+{% if your_orders %}
+    {% for order in your_orders %}
+            
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 ml-3">
+                    <h4>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</h4>
+                    <p>Passenger: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
+                    <p>Load: {{ order.request.load}} InterCity: {{ order.request.intercity}} No of passengers: {{ order.request.no_of_passengers }}</p>
+
+                    <p>Status: {{ order.request.ride.status }}</p>
+                    <p class="small">Posted on {{ order.time_posted|date:"F d, Y. h:i A" }}</p>
+                    {% if order.request.ride.status == 'unconfirmed' %}
+                        <p><a class="btn btn-primary" href="{% url 'order_detail' slug=order.slug %}">Check order</a></p>
+                    {% endif%}
+                </div>
+            </div>
+        </div>
+            
+    {% endfor %}
+{% else %}
+    <h5>You have no rides</h5>
+{% endif %}
+
+New Rides
+{% if new_orders %}
+    {% for order in new_orders %}
+            
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 ml-3">
+                    <h4>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</h4>
+                    <p>Passenger: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
+                    <p>Load: {{ order.request.load}} InterCity: {{ order.request.intercity}} No of passengers: {{ order.request.no_of_passengers }}</p>
+
+                    <p>Status: {{ order.request.ride.status }}</p>
+                    <p class="small">Posted on {{ order.time_posted|date:"F d, Y. h:i A" }}</p>
+                    {% if order.request.ride.status == 'unconfirmed' %}
+                        <p><a class="btn btn-primary" href="{% url 'order_detail' slug=order.slug %}">Check Order</a></p>
+                    {% endif%}
+                </div>
+            </div>
+        </div>
+        
+    {% endfor %}
+{% else %}
+    <h5>There are no new rides at this time</h5>
+{% endif %}
+
+
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-3" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="btn btn-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a class="btn btn-outline-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}

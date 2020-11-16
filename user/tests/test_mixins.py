@@ -72,12 +72,6 @@ class TestUpdateViewMixin(TestCase):
         self.response = views.driver_update_profile.as_view()(self.request)
         self.driver.refresh_from_db()
 
-    def test_success_url_redirect(self):
-
-        self.assertEqual(self.response.status_code, 302)
-        self.assertRedirects(self.response, reverse(
-            'driver_profile_update'), fetch_redirect_response=False)
-
     def test_location_updated(self):
         self.assertEqual(self.driver.location, self.data.get('location'))
 
@@ -104,6 +98,9 @@ class TestUpdateViewMixin(TestCase):
 
     def test_vehicle_vehicle_type(self):
         self.assertEqual(self.driver.vehicle.vehicle_type, self.data.get('vehicle_type'))
+
+    def test_driver_completed_set_to_true(self):
+        self.assertTrue(self.driver.completed)
 
 class TestUpdateFormInvalid(TestCase):
 

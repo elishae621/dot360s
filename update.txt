@@ -1,9 +1,6 @@
-subtract ride amount from user accounts
 
 a driver can also order a ride as a passenger
 
 a user can order more than one ride at a time
 
-users can withdraw from their account
-
-form considers capacity in validation
+driver should be notified seriously if user cancels accepted ride

@@ -1,6 +1,21 @@
-{% extends "user/base.html" %}
+{% extends "main/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+
+// This code activates flatpickr on fields with the 'datetimefield' class when the document has loaded
+window.addEventListener("DOMContentLoaded", function () {
+    flatpickr(".id_date_of_birth", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+    });
+});
+
+</script>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}

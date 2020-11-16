@@ -1,0 +1,12 @@
+{% extends "main/base.html"%}
+
+{% block content %}
+
+<h3>We may have driver's that could complete your request, but none is free at this time.
+
+Thanks</h3>
+
+<a href="{% url 'cancel_request' slug=order.slug %}">cancel this request</a>
+
+
+{% endblock %}

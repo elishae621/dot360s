@@ -1,6 +1,6 @@
 from django import forms
 from user.models import Driver, Vehicle
-from main.models import Request, Ride
+from main.models import Request, Ride, Withdrawal
 from django.core.exceptions import ValidationError
 
 
@@ -87,3 +87,21 @@ class FundAccountForm(forms.Form):
         data = self.cleaned_data.get('amount')
         data *= 100 # convert to kobo
         return data
+
+
+class WithdrawalForm(forms.ModelForm):
+    reason = forms.CharField(required=False)
+
+    # use javascript to enter default value for name 
+    # default value for account_details would be from their previous withdrawal with js
+    class Meta:
+        model = Withdrawal 
+        fields = ['name', 'amount', 'account_no', 'bank', 'reason',]
+
+    def clean_amount(self):
+        data = self.cleaned_data.get('amount', 0)
+        if data < 1000:
+            raise ValidationError("Minimum withdrawal amount is 1000 naira")
+        return data 
+            
+       

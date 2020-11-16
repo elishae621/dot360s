@@ -78,3 +78,6 @@ class TestOrderAccepted(TestCase):
 
     def test_that_ride_status_is_now_unpaid_and_confirmed(self):
         self.assertEqual(self.order.request.ride.status, "waiting")
+
+    def test_that_driver_status_is_now_busy(self):
+        self.assertEqual(self.order.request.driver.status, 'BU')

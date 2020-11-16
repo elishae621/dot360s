@@ -1,8 +1,8 @@
 from user.models import User, Driver, Vehicle
-from main.models import Request, Ride, Order
+from main.models import Request, Ride, Order, Withdrawal
 from rest_framework import viewsets
 from rest_framework import permissions
-from rest_api.serializers import UserSerializer, DriverSerializer, VehicleSerializer, RequestSerializer, RideSerializer, OrderSerializer
+from rest_api.serializers import UserSerializer, DriverSerializer, VehicleSerializer, RequestSerializer, RideSerializer, OrderSerializer, WithdrawalSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -38,4 +38,10 @@ class RideViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class WithdrawalViewSet(viewsets.ModelViewSet):
+    queryset = Withdrawal.objects.all()
+    serializer_class = WithdrawalSerializer 
     permission_classes = [permissions.IsAuthenticated]

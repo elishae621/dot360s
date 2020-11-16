@@ -48,16 +48,24 @@ class CustomAccountManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    
+    class Referral_status(models.TextChoices):
+        unpaid = "unpaid"
+        paid = "paid"
+
     email = models.EmailField(_('Email Address'), unique=True)
     firstname = models.CharField(max_length=150)
     lastname = models.CharField(max_length=150, blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_driver = models.BooleanField(default=False)
+    date_of_birth = models.DateField(null=True)
     phone = models.CharField(max_length=14, null=True, blank=False, unique=True,
         validators=[RegexValidator(regex="(?:^[+]{1}[0-9]*$)|(?:^0{1}[0-9]{10}$)",
         message="Enter a valid phone number without spaces or hyphens")])
     account_balance = models.FloatField(default=0) # in kobo
+    referral = models.EmailField(_('Who referred you'), null=True, blank=True)
+    referral_status = models.CharField(choices=Referral_status.choices, default="unpaid", max_length=6)
 
     objects = CustomAccountManager()
 
@@ -68,14 +76,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.firstname}"
 
     def get_absolute_url(self):
-        return reverse_lazy('home')
+        return reverse('home')
 
     def get_full_name(self):
         return f"{self.firstname} {self.lastname}"
 
+
 class Driver(models.Model):
 
     class City(models.TextChoices):
+        none = "none"
         Aba = "aba"
         Umuahia = "umuahia"
         Port_Harcourt = "port harcourt"
@@ -100,12 +110,13 @@ class Driver(models.Model):
         max_length=2)
     journey_type = MultiSelectField(_('Journey'),
         choices=Journey_type.choices, default=Journey_type.within_the_city, null=True, blank=True)
+    completed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Driver => {self.user.firstname}"
 
     def get_absolute_url(self):
-        return reverse_lazy('driver_profile_detail', kwargs={'pk':self.user.driver.pk})
+        return reverse('driver_profile_detail', kwargs={'pk':self.user.driver.pk})
 
 
 class Vehicle(models.Model):

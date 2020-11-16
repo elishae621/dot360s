@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.shortcuts import reverse
 
 
-
 class Request(models.Model):
     driver = models.ForeignKey(Driver, related_name='driver',
         on_delete=models.SET_NULL, null=True )
@@ -30,7 +29,7 @@ class Request(models.Model):
         return f'Request: {self.driver}, {self.passenger}'
 
     def get_absolute_url(self):
-        return reverse("order_detail", kwargs={"slug": self.request_order.slug})
+        return reverse("order_detail", kwargs={"slug": self.request_of_order.slug})
 
 
 class Ride(models.Model):
@@ -62,11 +61,11 @@ class Ride(models.Model):
         return f'Ride => {self.request}'
 
     def get_absolute_url(self):
-        return reverse("order_detail", kwargs={"slug": self.request.request_order.slug})
+        return reverse("order_detail", kwargs={"slug": self.request.request_of_order.slug})
 
 
 class Order(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request_order')
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request_of_order')
     driver = models.ManyToManyField(Driver, related_name='request_driver')
     time_posted = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
@@ -83,3 +82,26 @@ class Order(models.Model):
             self.slug = str(slugify(floor(time()*10))) + "-" + str(slugify(self.request.from_address))
         return super().save(*args, **kwargs)
 
+
+class Withdrawal(models.Model):
+
+    class Status(models.TextChoices):
+        unattended = "unattended"
+        pending = "pending"
+        completed = "completed"
+        cancelled = "cancelled"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawal")
+    name = models.CharField(max_length=40, null=True, blank=True)
+    amount = models.PositiveIntegerField(default=0)
+    date = models.DateTimeField(auto_now_add=True)
+    reason = models.CharField(max_length=500)
+    account_no = models.IntegerField()
+    bank = models.CharField(max_length=50)
+    status = models.CharField(choices=Status.choices, default=Status.unattended, max_length=10)
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} {self.amount} on {self.date}"
+
+    def get_absolute_url(self):
+        return reverse('withdrawal_detail', kwargs={'pk': self.pk})

@@ -25,8 +25,9 @@ def sent_driver_on_accepted_driver(sender, **kwargs):
     driver = kwargs.get('Driver', '')
     if order.accepted == True:
         order.request.driver = driver
-        # a driver has been selected, waiting for payment
         order.request.ride.status = "waiting"
         order.save()
         order.request.save()
         order.request.ride.save()
+        driver.status = 'BU'
+        driver.save()

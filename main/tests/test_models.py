@@ -1,6 +1,6 @@
 from django.test import TestCase
 from user.models import User, Vehicle
-from main.models import Request, Ride, Order
+from main.models import Request, Ride, Order, Withdrawal
 from faker import Faker
 from django.urls import reverse
 from django.template.defaultfilters import slugify
@@ -30,7 +30,7 @@ class TestRequest(TestCase):
             f"Request: {self.driver}, {self.passenger}")
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.request.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_order.slug}))
+        self.assertEqual(self.request.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_of_order.slug}))
 
 
 class TestRide(TestCase):
@@ -51,7 +51,7 @@ class TestRide(TestCase):
             f"Ride => Request: {self.driver}, {self.passenger}")
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.ride.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_order.slug}))
+        self.assertEqual(self.ride.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_of_order.slug}))
 
 
 class TestOrder(TestCase):
@@ -79,3 +79,17 @@ class TestOrder(TestCase):
     def test_slug_is_put_in_save(self):
         print(self.order.slug)
         self.assertEqual(self.order.slug, f"{str(slugify(floor(time()*10)))}-{str(slugify(self.request.from_address))}")
+
+
+class TestWithdrawal(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email=fake.email(), firstname='John', 
+        lastname='Legend', phone=fake.numerify(text='080########'), password=fake.password())
+        self.withdrawal = Withdrawal.objects.create(user=self.user, name=self.user.get_full_name(), account_no=fake.numerify(text='##########'),
+        amount=1000, reason=fake.text(), bank="GT Bank")
+
+    def test_str_function(self):
+        self.assertEqual(str(self.withdrawal), f"John Legend 1000 on {self.withdrawal.date}")
+
+    def test_get_absolute_url(self):
+        self.assertEqual(self.withdrawal.get_absolute_url(), reverse('withdrawal_detail', kwargs={'pk': self.withdrawal.pk}))

@@ -6,6 +6,7 @@ from user.admin import (
 from user.models import User, Vehicle, Driver
 from main.models import Request
 from unittest.mock import patch, Mock
+from django.core.exceptions import ObjectDoesNotExist
 from faker import Faker
 fake = Faker()
 
@@ -42,6 +43,21 @@ class TestUserAdmin(TestCase):
 
     def test_driver_function_for_driver(self):
         self.assertTrue(UserAdmin.driver(UserAdmin, self.driver_user))
+
+    @patch("user.admin.messages")
+    def test_driver_is_created_with_make_driver(self, message_mock):
+        message_mock.return_value = Mock()
+        UserAdmin.make_driver(UserAdmin, self.http_request, queryset=User.objects.filter(pk=self.passenger.pk))
+        self.passenger.refresh_from_db()
+        self.assertTrue(self.passenger.driver)
+
+    @patch("user.admin.messages")
+    def test_driver_is_deleted_with_make_not_driver(self, message_mock):
+        message_mock.return_value = Mock()
+        UserAdmin.make_not_driver(UserAdmin, self.http_request, queryset=User.objects.filter(pk=self.driver_user.pk))
+        self.driver_user.refresh_from_db()
+        with self.assertRaises(ObjectDoesNotExist):
+            self.driver_user.driver
         
     @patch("user.admin.messages")
     def test_make_driver_updates_queryset(self, message_mock):

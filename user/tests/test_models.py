@@ -2,7 +2,7 @@ from django.test import TestCase
 from user.models import User
 from dot360s.settings import INSTALLED_APPS, AUTH_USER_MODEL
 from faker import Faker
-from django.urls import reverse_lazy
+from django.shortcuts import reverse
 
 fake = Faker()
 
@@ -89,7 +89,7 @@ class TestUserModel(TestCase):
         self.assertEqual(str(self.user), f'{self.user.firstname}')
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.user.get_absolute_url(), reverse_lazy(
+        self.assertEqual(self.user.get_absolute_url(), reverse(
             'home'))
 
     def test_get_full_name(self):
@@ -106,7 +106,7 @@ class TestDriverModel(TestCase):
             f'Driver => {self.user.firstname}')
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.user.driver.get_absolute_url(), reverse_lazy(
+        self.assertEqual(self.user.driver.get_absolute_url(), reverse(
             'driver_profile_detail', kwargs={'pk':self.user.driver.pk}))
 
 class TestVehicleModel(TestCase):
@@ -120,6 +120,6 @@ class TestVehicleModel(TestCase):
             f"{self.user.driver}'s vehicle")
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.user.driver.vehicle.get_absolute_url(), reverse_lazy(
+        self.assertEqual(self.user.driver.vehicle.get_absolute_url(), reverse(
             'driver_profile_detail', kwargs={'pk': self.user.driver.pk}))
 

@@ -1,3 +1,4 @@
+from main.views import WithdrawalCreateView, WithdrawalList
 from django.urls import path
 from main import views as main_views
 
@@ -6,19 +7,17 @@ urlpatterns = [
 
     path('', main_views.Index.as_view(), name="home"),
 
-    path('home/', main_views.home.as_view(), name='passenger_home'),
-
     path('request/', main_views.RequestCreate.as_view(), name='create_request'),
 
     path('verify-transaction/', main_views.VerifyTransaction.as_view(), name='verify_transaction'),
 
-    path('no-driver/', main_views.NoAvaliableDriver.as_view(), name='no_avaliable_driver'),
+    path('no-driver/<slug:slug>/', main_views.NoAvaliableDriver.as_view(), name='no_avaliable_driver'),
 
-    path('cancel/', main_views.CancelRequest.as_view(), name="cancel_request"),
+    path('cancel/<slug:slug>/', main_views.CancelRequest.as_view(), name="cancel_request"),
 
     path('requests/', main_views.RequestListView.as_view(), name="request_list"),
 
-    path('orders/', main_views.OrderListView.as_view(), name="driver_orders"),
+    path('orders/', main_views.OrderListView.as_view(), name="order_list"),
 
     path('order/<slug:slug>/', main_views.OrderDetail.as_view(), name="order_detail"),
 
@@ -32,5 +31,15 @@ urlpatterns = [
 
     path('ongoing-order/<slug:slug>/', main_views.OngoingOrder.as_view(), name="ongoing_order"),
 
-    path('another-driver/<slug:slug>/', main_views.AnotherDriver.as_view(), name="another_driver")
+    path('another-driver/<slug:slug>/', main_views.AnotherDriver.as_view(), name="another_driver"),
+
+    path('change-status/', main_views.ChangeDriverStatus.as_view(), name="change_status"),
+
+    path('create-withdrawal/', main_views.WithdrawalCreateView.as_view(), name="create_withdrawal"),
+
+    path('withdrawal/', main_views.WithdrawalList.as_view(), name="withdrawal_list"),
+
+    path('withdrawal/<int:pk>/', main_views.WithdrawalDetail.as_view(), name="withdrawal_detail"),
+
+    path('history/', main_views.HistoryListView.as_view(), name="history"),
 ]

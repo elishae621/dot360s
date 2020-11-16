@@ -1,5 +1,6 @@
+from main.tests.test_models import TestWithdrawal
 from django.test import TestCase
-from main.forms import RequestForm, FundAccountForm
+from main.forms import RequestForm, FundAccountForm, WithdrawalForm
 from user.models import User, Driver, Vehicle
 from faker import Faker
 
@@ -115,3 +116,31 @@ class TestFundAccountForm(TestCase):
         self.form.is_valid()
         self.assertEqual(self.data.get
         ('amount') * 100, self.form.cleaned_data.get('amount'))
+
+
+class TestWithdrawalForm(TestCase):
+    def setUp(self):
+        self.data = {
+            'name': fake.name(),
+            'amount': 1000,
+            'account_no': 23243434343,
+            'bank': 'GT Bank', 
+            'reason': fake.text()
+        }
+        self.form = WithdrawalForm(data=self.data)
+
+    def test_form_is_valid(self):
+        print(self.form.errors)
+        self.assertTrue(self.form.is_valid())
+
+    def test_amount_validation(self):
+        self.data = {
+            'name': fake.name(),
+            'amount': 999,
+            'account_no': 23243434343,
+            'bank': 'GT Bank', 
+            'reason': fake.text()
+        }
+        self.form = WithdrawalForm(data=self.data)
+
+        self.assertEqual(self.form.errors.get('amount')[0], "Minimum withdrawal amount is 1000 naira") 

@@ -1,0 +1,44 @@
+{% extends "main/base.html" %}
+{% block content %}
+
+{% for request in requests %}
+    <div class="media">
+        <div class="media-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-10 ml-3">
+                        
+                        <h3>From: {{ request.from_address}}  To: {{ request.to_address}}</h3>
+                        <p>Passenger: {{ request.passenger.firstname }} {{ request.passenger.lastname }} Time: {{ request.time }}</p>
+                        <p>status: {{ request.ride.status }}</p>
+                        <p>Accepted: {{ request.request_of_order.accepted }}</p>
+                        <a class="btn btn-primary" href="{% url 'order_detail' slug=request.request_of_order.slug %}">Detail</a>    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-3" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a class="btn btn-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a class="btn btn-outline-info mb-3" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-3" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
+
+{% endblock %}

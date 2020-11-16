@@ -1,0 +1,87 @@
+{% load static %}
+{% include 'tellme/js_inc.html' %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dot360s</title>
+
+    <script type="text/javascript" src="{% static 'user/jquery/jquery.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'user/css/bootstrap.css' %}">
+    <link href="{% static 'tellme/feedback.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'user/css/custom_styles.css' %}">
+
+    {% block extra_head %}
+    {% endblock %}
+  </head>
+  <body>
+  {% block body %}
+    {% for message in messages %}
+      <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    <div>
+      <ul class='mynav'>
+        {% if user.is_authenticated %}
+          
+          <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
+          <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+          <li><a href="{% url 'create_withdrawal' %}">Wthdraw</a></li>
+          <li><a href="{% url 'history' %}">History</a></li>
+          <li><a href="{% url 'create_request' %}">New Ride</a></li>
+          <li><a href="{% url 'fund_account' %}">Fund Account</a></li>
+
+          {% if user.is_driver %}
+            <li><a href="{% url 'driver_profile_detail' pk=user.pk %}">Profile</a></li>
+            <li><a href="{% url 'order_list' %}">List of Orders</a></li>
+            <li><a href="{% url 'order_list' %}">Home</a></li>
+          {% else %}
+            <li><a href="{% url 'request_list' %}">Home</a></li>
+          {% endif %}
+            
+        {% else %}
+          <li><a href="{% url 'account_login' %}">Sign In</a></li>
+          <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-10">
+          {% if user.is_authenticated %}
+            {% if user.is_driver %}
+            <br>
+            Your Status: 
+              {% if user.driver.status == 'AV' %}
+                <a class="btn btn-success" href="{% url 'change_status' %}?next={{ request.path }}">Avaliable</a>
+              {% elif user.driver.status == 'BU' %}
+                <a class="btn btn-warning" href="{% url 'change_status' %}?next={{ request.path }}">Busy</a>
+              {% else %}
+                <a class="btn btn-info" href="{% url 'change_status' %}?next={{ request.path }}">Not Avaliable</a>
+              {% endif %} 
+            {% endif %}
+            <br><br>
+            <h5>Account Balance: {{ user.account_balance }} NGN </h5>
+            <br>
+          {% endif %}
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <button type="button" id="feedback-btn" class="btn btn-info vertical-right-aligned">
+        Feedback <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span>
+    </button>
+  {% endblock %}
+  {% block extra_body %}
+  {% endblock %}
+  </body>
+</html>

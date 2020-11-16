@@ -1,14 +1,38 @@
-{% extends 'user/base.html' %}
-
+{% extends 'main/base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block content %}
+  
 
 <div class='row'>
     <div class="col-lg-8">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ dForm|crispy }}
+            <div class="fieldWrapper">
+                {{ dForm.image.errors }}
+                <label for="{{ dForm.image.id_for_label }}"></label>
+                <div id="profile-container">
+                    <image id="profileImage" src="{{ user.driver.image.url }}" />
+                    {{ dForm.image }}
+                </div>
+            </div>
+            <div class="fieldWrapper">
+                {{ dForm.location.errors }}
+                <label for="{{ dForm.location.id_for_label }}">City of Operation:</label>
+                {{ dForm.location }}
+            </div>
+            <div class="fieldWrapper">
+                {{ dForm.status.errors }}
+                <label for="{{ dForm.status.id_for_label }}">Status:</label>
+                {{ dForm.status }}
+            </div>
+            <div class="fieldWrapper">
+                {{ dForm.journey_type.errors }}
+                <label for="{{ dForm.journey_type.id_for_label }}">Journey Type:</label>
+                {{ dForm.journey_type }}
+            </div>
+
             <h4>Vehicle form</h4>
             {{ vForm|crispy }}
             <button class="btn btn-outline-info" type='submit'>Update info</button>

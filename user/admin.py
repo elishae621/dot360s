@@ -18,7 +18,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('firstname', 'lastname', 'phone', 'account_balance', 'is_driver', 'is_staff')
     list_filter = ('firstname', 'is_driver')
     inlines = [DriverInline, ]
-    readonly_fields = ('account_balance', 'is_driver', 'is_staff')
+    readonly_fields = ('is_driver', 'is_staff')
     fieldsets = (
         ('Personal Information', {
             'classes': ('wide',),
@@ -32,6 +32,10 @@ class UserAdmin(admin.ModelAdmin):
             'classes': ('wide',),
             'fields': ('is_driver', 'is_staff',),
         }),
+        ('Referral Details', {
+            'classes': ('wide',),
+            'fields': ('referral', 'referral_status')
+        })
     )
     search_fields = ('firstname',)
     ordering = ('firstname',)
@@ -51,6 +55,8 @@ class UserAdmin(admin.ModelAdmin):
     def make_driver(modelAdmin, request, queryset):
         if request.path == "/admin/user/user/":
             queryset.update(is_driver = 1)
+            for obj in queryset:
+                obj.save()
             messages.success(request, "Selected User(s) Marked as drivers Successfully !!")
         else:
             messages.error(request, "This can only be done from the user model")
@@ -58,6 +64,9 @@ class UserAdmin(admin.ModelAdmin):
     def make_not_driver(modelAdmin, request, queryset):
         if request.path == "/admin/user/user/":
             queryset.update(is_driver = 0)
+            for obj in queryset:
+                Driver.objects.filter(user=obj).delete()
+                obj.save()
             messages.success(request, "Selected user(s) Marked as non drivers Successfully !!")
         else: 
             messages.error(request, "This can only be done from the user model")

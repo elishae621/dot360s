@@ -1,20 +1,3 @@
-.progress_text_left, .progress_text_right {
-    position: absolute;
-    bottom: 5px;
-}
-.progress_text_left {
-    left: 5px;
-}
-.progress_text_right {
-    right: 5px;
-}
-.progress_bar {
-    position: relative;
-}
-.account_img {
-    height: 70px !important;
-    color: darkolivegreen
-}
 .vertical-right-aligned {
     transform: rotate(-90deg);
     transform-origin: 100% 100%;
@@ -23,3 +6,36 @@
     top: 50%;
     z-index: 100;
 }
+
+.mynav {
+    list-style-type: none;
+    margin-left: 0px;
+    padding-left: 0px;
+    list-style: none;
+    border-bottom: 1px none #000;
+}
+
+.mynav li {
+    display: inline;
+}
+
+.mynav a {
+    display: inline-block;
+    border: 1px none #000;
+    border-bottom: none;
+    padding: 5px 15px 5px 15px;
+    background-color: #EAEAEA;
+    text-decoration: none;
+    color: #333;
+}
+
+#profileImage {
+    cursor: pointer;
+}
+
+#profile-container img {
+    width: 150px;
+    height: 150px;
+     
+}
+

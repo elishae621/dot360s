@@ -1,21 +1,34 @@
-{% extends "user/base.html" %}
+{% extends "main/base.html" %}
 {% block content %}
 
 
 <div class="card">
     <div class="card-header">
         <div class="col-4">
-            <img class="img-fluid img-circle account_img" src='{{ user.driver.image.url }}' alt="Driver picture">
-        </div>
-        <div class="col-8">
-            <h3>{{ user.firstname }} {{ user.lastname }}</h3>
-            <P>{{ user.email }}</P>
+            <div id="profile-container">
+                <img id="profileImage" src='{{ user.driver.image.url }}' alt="Driver's profile picture">
+            </div>
         </div>
     </div>
     <div class="card-body">
-        
-        <a href="{% url 'driver_profile_update' %}" class="btn btn-info">Update</a>
+        <div class="col">
+            <h4>{{ user.firstname }} {{ user.lastname }}</h4>
+            <P>Email: {{ user.email }}</P>
+            <P>Phone Number: {{ user.phone }}</P>
+            <P>City: {{ user.driver.location }}</P>
+            <P>Status: {{ user.driver.status }}</P>
+            <P>Journey type: {{ user.driver.journey_type }}</P>
+            <P>has profile been completed: {{ user.driver.completed }}</P>
 
+            <h4>Vehicle Detail</h4>
+            <P>Name: {{ user.driver.vehicle.name }}</P>
+            <P>Plate Number: {{ user.driver.vehicle.plate_number }}</P>
+            <P>Color: {{ user.driver.vehicle.color }}</P>
+            <P>Capacity: {{ user.driver.vehicle.capacity }}</P>
+            <P>Vehicle type: {{ user.driver.vehicle.vehicle_type }}</P>
+
+            <a href="{% url 'driver_profile_update' %}" class="btn btn-info">Update</a>
+        </div>
     </div>
 </div>
 

@@ -1,0 +1,39 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+{% comment %} <h2>Valid drivers: {{ order.driver }}</h2> {% endcomment %}
+
+<p>From: {{ order.request.from_address}}  To: {{ order.request.to_address}}</p>
+<p>Payment Method: {{ order.request.ride.payment_method }} payment </p>
+<p>Price: {{ order.request.ride.price }}</p>
+
+<h3> Passenger </h3>
+<p>Name: {{ order.request.passenger.firstname }} {{ order.request.passenger.lastname }} Time: {{ order.request.time}}</p>
+<p>Load: {{ order.request.load }} InterCity: {{ order.request.intercity }} No of passengers: {{ order.request.no_of_passengers }}</p>
+
+<h3> Driver </h3>
+<div id="profile-container">
+    <img id="profileImage" src='{{ order.request.driver.image.url }}' alt="Driver's profile picture">
+</div>
+<p> Name: {{ order.request.driver.user.firstname }} 
+    {{ order.request.driver.user.lastname }}</p>
+<p> Vehicle name = {{ order.request.driver.vehicle.name }}</p>
+<p> Vehicle detail = {{ order.request.driver.vehicle.color }} <br>
+    {{ order.request.driver.vehicle.vehicle_type }} <br>
+    {{ order.request.driver.vehicle.plate_number }}</p>
+<p> 
+    Ride status = {{ order.request.ride.status }} <br>
+    time = {{ order.request.time }}
+</p>
+
+{% if user.is_driver and not order.accepted%}
+    <a class="btn btn-primary" href="{% url 'take_order' slug=order.slug %}">Take order</a>
+{% endif %}
+{% if user == order.request.passenger and order.request.ride.status != "completed" %}
+    <a class="btn btn-warning" href="{% url 'cancel_request' slug=order.slug %}">cancel this request</a>
+    <a class="btn btn-primary" href="{% url 'another_driver' slug=order.slug %}">Choose another Driver</a>
+{% endif %}
+
+
+{% endblock %}

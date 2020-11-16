@@ -4,12 +4,17 @@ from user.models import Driver, User, Vehicle
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
-    password2 = forms.CharField(widget=forms.PasswordInput())
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput())
+    phone = forms.CharField(label="Phone Number")
+    referral = forms.EmailField(help_text="Enter the email of the user that introduced you to dot360s", required=False)
+    
 
     class Meta:
         model = User
-        fields = ('email', 'firstname', 'lastname', 'password', 'password2', 'phone')
-
+        fields = ('email', 'firstname', 'lastname', 'password', 'password2', 'date_of_birth', 'phone', 'referral')
+        widgets = {
+            'date_of_birth': forms.DateInput(format='%d-%m-%Y', attrs={'class': 'datetimefield'}),
+        }
 
 class DriverProfileUpdateForm(forms.ModelForm):
     location = forms.ChoiceField(choices=Driver.City.choices, widget=forms.RadioSelect())

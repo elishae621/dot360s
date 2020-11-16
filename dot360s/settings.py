@@ -15,6 +15,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+TEMPLATE_DIR = os.path.normpath(os.path.join(BASE_DIR, 'templates'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -24,7 +25,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = '-ci2_$ta#b4qj3o=h(23*eb3ls)w_a#!2bm290_m2i@0jlhtun'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # remember to change your payment callback url to the new domain name
 ALLOWED_HOSTS = ['testserver', 'localhost', 'elishae621.pythonanywhere.com']
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'multiselectfield',
     'tellme',
     'rest_framework',
+    'rest_framework.authtoken',
     
     # allauth
     'allauth',
@@ -87,7 +89,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.normpath(os.path.join(BASE_DIR, 'templates')),
+            TEMPLATE_DIR,
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -105,8 +107,8 @@ WSGI_APPLICATION = 'dot360s.wsgi.application'
 
 
 AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
-    # 'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 # Database
@@ -170,28 +172,30 @@ LOGIN_URL = reverse_lazy('account_login')
 
 AUTH_USER_MODEL = 'user.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
+SENDGRID_API_KEY = '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'
+SENDGIRD_SANDBOX_MODE_IN_DEBUG = False
+
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'dot360.official@gmail.com'
+EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'Dot360.official@gmail.com'
-EMAIL_HOST_PASSWORD = 'Dot11111'
+EMAIL_USE_TLS = True
 
 
 # django allauth settings starts
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 1000
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 10000
 ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
-ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 
@@ -217,8 +221,15 @@ TELLME_FEEDBACK_EMAIL = EMAIL_HOST_USER
 # rest_framework start 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'rest_api.serializers.UserSerializer',
 }

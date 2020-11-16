@@ -1,9 +1,8 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from user.models import User
 from main.models import Request, Ride
 from django.http import Http404
-from django.urls import reverse_lazy
 
 
 
@@ -25,7 +24,7 @@ class GetLoggedInUserRideMixin(LoginRequiredMixin):
 class OrderNotAcceptedMixin(UserPassesTestMixin):
     def test_func(self):
         ride = self.get_object()
-        order = ride.request.request_order
+        order = ride.request.request_of_order
         order.refresh_from_db()
         if order.accepted:
             return False
@@ -36,7 +35,7 @@ class OrderNotAcceptedMixin(UserPassesTestMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result:
             ride = self.get_object()
-            order = ride.request.request_order
-            return redirect(reverse_lazy('order_detail', kwargs={'slug': order.slug}))
+            order = ride.request.request_of_order
+            return redirect(reverse('order_detail', kwargs={'slug': order.slug}))
         return super().dispatch(request, *args, **kwargs)
     

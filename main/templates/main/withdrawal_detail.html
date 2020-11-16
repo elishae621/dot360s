@@ -1,0 +1,16 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+Withdrawal Detail
+<p>User: {{ user }}</p>
+<p>name: {{ withdrawal.name }}</p>
+<p>amount: {{ withdrawal.amount }}</p>
+<p>date: {{ withdrawal.date|date:"F d, Y. h:i A" }}</p>
+<p>reason: {{ withdrawal.reason }}</p>
+<p>account number: {{ withdrawal.account_no }}</p>
+<p>bank: {{ withdrawal.bank }}</p>
+<p>status: {{ withdrawal.status }}</p>
+
+
+{% endblock %}

@@ -5,7 +5,7 @@ from user.forms import (
     VehicleUpdateForm,
 )
 import factory
-from user.models import Driver, Vehicle
+from user.models import Driver, Vehicle, User
 from faker import Faker
 
 fake = Faker()
@@ -20,7 +20,9 @@ class TestUserRegistrationForm(TestCase):
             'lastname': fake.last_name(),
             'password': password,
             'password2': password,
+            'date_of_birth': fake.date_of_birth(),
             'phone': fake.numerify(text='080########'),
+            'referral': fake.email(),
         }
         self.form = UserRegistrationForm(data=self.data)
 
