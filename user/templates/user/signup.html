@@ -9,8 +9,8 @@
 
 // This code activates flatpickr on fields with the 'datetimefield' class when the document has loaded
 window.addEventListener("DOMContentLoaded", function () {
-    flatpickr(".id_date_of_birth", {
-        dateFormat: "Y-m-d",
+    flatpickr(".datefield", {
+        dateFormat: "d-m-Y",
         maxDate: "today",
     });
 });
@@ -24,6 +24,6 @@ window.addEventListener("DOMContentLoaded", function () {
 </form>
 
 
-<p class="text-muted underline p-4"><a href="{% url 'account_login' %}">Have an account? Log in</a></p>
+<p class="text-muted underline p-4"><a href="{% url 'user:login' %}">Have an account? Log in</a></p>
 
 {% endblock %}

@@ -37,7 +37,7 @@ class UserAdmin(admin.ModelAdmin):
             'fields': ('referral', 'referral_status')
         })
     )
-    search_fields = ('firstname',)
+    search_fields = ('is_driver', 'is_staff',)
     ordering = ('firstname',)
 
     def get_inline_instances(self, request, obj=None):
@@ -125,7 +125,6 @@ class VehicleAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-
 
 
 admin.site.register(User, UserAdmin)

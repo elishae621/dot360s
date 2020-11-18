@@ -29,9 +29,7 @@ urlpatterns = [
     path('403/', permission_denied_view),
     path('404/', page_not_found_view),
     path('500/', uncaught_exception_view),
-    path('accounts/', include('allauth.urls')),
     path('', include('main.urls')),
-    path('tellme/', include('tellme.urls')),
 ]
 
 handler400 = 'user.views.error_400'

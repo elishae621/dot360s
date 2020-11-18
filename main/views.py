@@ -15,29 +15,15 @@ from main.signals import order_accepted
 
 class Index(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
-        # using SendGrid's Python Library
-        # https://github.com/sendgrid/sendgrid-python
-        import os
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
+        # from django.core.mail import send_mail
 
-        message = Mail(
-            from_email='dot360.official@gmail.com',
-            to_emails='elishae166@gmail.com',
-            subject='Sending with Twilio SendGrid is Fun',
-            html_content='<strong>and easy to do anywhere, even with Python</strong>')
-        apikey = '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'
-        try:
-            sg = SendGridAPIClient(apikey)
-            # sg = SendGridAPIClient('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')
-
-            response = sg.send(message)
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(apikey)
-            print(e)
+        # status = send_mail(
+        #     'Subject here',
+        #     'Here is the message.',
+        #     'dot360.official@gmail.com',
+        #     ['elishae621@gmail.com','elishae166@gmail.com',],
+        #     fail_silently=False,
+        # )
         if self.request.user.is_driver:
             return redirect(reverse('order_list'))
         else:

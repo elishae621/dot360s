@@ -1,6 +1,6 @@
 from django.test import TestCase
 from user.forms import (
-    UserRegistrationForm,
+    RegistrationForm,
     DriverProfileUpdateForm,
     VehicleUpdateForm,
 )
@@ -24,7 +24,7 @@ class TestUserRegistrationForm(TestCase):
             'phone': fake.numerify(text='080########'),
             'referral': fake.email(),
         }
-        self.form = UserRegistrationForm(data=self.data)
+        self.form = RegistrationForm(data=self.data)
 
     def test_form_is_valid(self):
         print(self.form.errors)

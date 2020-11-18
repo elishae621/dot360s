@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from django.urls import reverse_lazy
 from pathlib import Path, PurePath
 import os
+from dot360s.config import (
+    SENDGRID_API_KEY, 
+    DJANGO_SECRET_KEY,
+    PAYSTACK_PUBLIC_KEY,
+    PAYSTACK_SECRET_KEY,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -22,10 +28,10 @@ TEMPLATE_DIR = os.path.normpath(os.path.join(BASE_DIR, 'templates'))
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-ci2_$ta#b4qj3o=h(23*eb3ls)w_a#!2bm290_m2i@0jlhtun'
+SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # remember to change your payment callback url to the new domain name
 ALLOWED_HOSTS = ['testserver', 'localhost', 'elishae621.pythonanywhere.com']
@@ -47,17 +53,17 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'main.apps.MainConfig',
     'AdminChat.apps.AdminchatConfig',
+    'feedback.apps.FeedbackConfig',
 
     # 3rd-party apps
     'crispy_forms',
     'multiselectfield',
-    'tellme',
     'rest_framework',
     'rest_framework.authtoken',
     
-    # allauth
-    'allauth',
-    'allauth.account',
+    # # allauth
+    # 'allauth',
+    # 'allauth.account',
     
 ]
 
@@ -107,7 +113,7 @@ WSGI_APPLICATION = 'dot360s.wsgi.application'
 
 
 AUTHENTICATION_BACKENDS = (
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -167,69 +173,55 @@ MEDIA_URL = '/media/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
-LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
-LOGIN_URL = reverse_lazy('account_login')
+LOGOUT_REDIRECT_URL = reverse_lazy('user:login')
+LOGIN_URL = reverse_lazy('user:login')
 
 AUTH_USER_MODEL = 'user.User'
 
-SENDGRID_API_KEY = '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'
+SENDGRID_API_KEY = SENDGRID_API_KEY
+
 SENDGIRD_SANDBOX_MODE_IN_DEBUG = False
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'dot360.official@gmail.com'
-EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
 
+# # django allauth settings starts
+# ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None
+# ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 10000
+# ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('user:login')
+# LOGIN_REDIRECT_URL = reverse_lazy('home')
+# ACCOUNT_EMAIL_VERIFICATION = "none"
+# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+# ACCOUNT_SESSION_REMEMBER = True
+# ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 
-# django allauth settings starts
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 10000
-ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('account_login')
-LOGIN_REDIRECT_URL = reverse_lazy('home')
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_SESSION_REMEMBER = True
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
-
-ACCOUNT_FORMS = {
-    'signup': 'user.forms.UserRegistrationForm',
-}
-
-
-# phonenumber-field settings start
-PHONENUMBER_DB_FORMAT = 'NATIONAL'
-PHONENUMBER_DEFAULT_REGION = 'NG' 
+# ACCOUNT_FORMS = {
+#     'signup': 'user.forms.RegistrationForm',
+# }
 
 
 # paystack settings and keys start
-PAYSTACK_PUBLIC_KEY = "pk_test_4263b396389084b6ecbe31d54cf07a0a74fe325d"
-PAYSTACK_SECRET_KEY = "sk_test_a648f1e1d722bb8e6649c70659b9a7933ce89776"
-
-
-# tellme settings start
-TELLME_FEEDBACK_EMAIL = EMAIL_HOST_USER
+PAYSTACK_PUBLIC_KEY = PAYSTACK_PUBLIC_KEY
+PAYSTACK_SECRET_KEY = PAYSTACK_SECRET_KEY
 
 
 # rest_framework start 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    )
 }
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'rest_api.serializers.UserSerializer',
+    'USER_DETAILS_SERIALIZER': 'user.api.serializers.UserSerializer',
 }

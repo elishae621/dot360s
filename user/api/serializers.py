@@ -43,3 +43,21 @@ class WithdrawalSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Withdrawal
         fields = ['url', 'name', 'amount', 'date', 'reason', 'account_no', 'bank', 'status', ]
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+    class Meta:
+        model = User 
+        fields = ['email', 'firstname', 'lastname', 'password', 'password2', 'date_of_birth', 'phone', 'referral', 'referral_status', ]
+
+    def save(self):
+        user = User(email=self.validated_data['email'], firstname=self.validated_data['firstname'], lastname=self.validated_data['lastname'], date_of_birth=self.validated_data['date_of_birth'], phone=self.validated_data['phone'], referral=self.validated_data['referral'], referral_status=self.validated_data['referral_status'])
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+        if password != password2:
+            raise serializers.ValidationError({'password': 'Passwords must match'})
+            user.set_password(password)
+            user.save()
+            return user 

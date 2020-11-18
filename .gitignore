@@ -9,3 +9,4 @@ profile_pics
 .vscode
 .pycharm
 env/
+config.py

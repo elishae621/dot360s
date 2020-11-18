@@ -1,5 +1,4 @@
 {% load static %}
-{% include 'tellme/js_inc.html' %}
 
 <!DOCTYPE html>
 <html>
@@ -10,7 +9,6 @@
 
     <script type="text/javascript" src="{% static 'user/jquery/jquery.js' %}"></script>
     <link rel="stylesheet" href="{% static 'user/css/bootstrap.css' %}">
-    <link href="{% static 'tellme/feedback.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'user/css/custom_styles.css' %}">
 
     {% block extra_head %}
@@ -28,29 +26,41 @@
     {% endfor %}
 
     <div>
-      <ul class='mynav'>
-        {% if user.is_authenticated %}
+      <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'home' %}">Dot360s</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
+            aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="oi oi-menu"></span> Menu
+          </button>
+          <div class="collapse navbar-collapse" id="ftco-nav">
+            <ul class="navbar-nav ml-auto">
+              {% if user.is_authenticated %}
           
-          <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
-          <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
-          <li><a href="{% url 'create_withdrawal' %}">Wthdraw</a></li>
-          <li><a href="{% url 'history' %}">History</a></li>
-          <li><a href="{% url 'create_request' %}">New Ride</a></li>
-          <li><a href="{% url 'fund_account' %}">Fund Account</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Change E-mail</a></li>
+                <li class="nav-item"><a href="{% url 'user:logout' %}" class="nav-link">Sign Out</a></li>
+                <li class="nav-item"><a href="{% url 'create_withdrawal' %}" class="nav-link">Wthdraw</a></li>
+                <li class="nav-item"><a href="{% url 'history' %}" class="nav-link">History</a></li>
+                <li class="nav-item"><a href="{% url 'create_request' %}" class="nav-link">New Ride</a></li>
+                <li class="nav-item"><a href="{% url 'fund_account' %}" class="nav-link">Fund Account</a></li>
+                <li class="nav-item"><a href="{% url 'form:home' %}" class="nav-link">Feedback</a></li>
 
-          {% if user.is_driver %}
-            <li><a href="{% url 'driver_profile_detail' pk=user.pk %}">Profile</a></li>
-            <li><a href="{% url 'order_list' %}">List of Orders</a></li>
-            <li><a href="{% url 'order_list' %}">Home</a></li>
-          {% else %}
-            <li><a href="{% url 'request_list' %}">Home</a></li>
-          {% endif %}
-            
-        {% else %}
-          <li><a href="{% url 'account_login' %}">Sign In</a></li>
-          <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
-        {% endif %}
-      </ul>
+                {% if user.is_driver %}
+                  <li class="nav-item"><a href="{% url 'driver_profile_detail' pk=user.pk %}" class="nav-link">Profile</a></li>
+                  <li class="nav-item"><a href="{% url 'order_list' %}" class="nav-link">List of Orders</a></li>
+                  <li class="nav-item"><a href="{% url 'order_list' %}" class="nav-link">Home</a></li>
+                {% else %}
+                  <li class="nav-item"><a href="{% url 'request_list' %}" class="nav-link">Home</a></li>
+                {% endif %}
+                  
+              {% else %}
+                <li class="nav-item"><a href="{% url 'user:login' %}" class="nav-link">Sign In</a></li>
+                <li class="nav-item"><a href="{% url 'user:register' %}" class="nav-link">Sign Up</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </nav>
     </div>
     <div class="container">
       <div class="row">
@@ -77,11 +87,10 @@
       </div>
     </div>
 
-    <button type="button" id="feedback-btn" class="btn btn-info vertical-right-aligned">
-        Feedback <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span>
-    </button>
   {% endblock %}
   {% block extra_body %}
   {% endblock %}
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
   </body>
 </html>

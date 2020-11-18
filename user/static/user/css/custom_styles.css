@@ -6,7 +6,7 @@
     top: 50%;
     z-index: 100;
 }
-
+/* 
 .mynav {
     list-style-type: none;
     margin-left: 0px;
@@ -27,7 +27,7 @@
     background-color: #EAEAEA;
     text-decoration: none;
     color: #333;
-}
+} */
 
 #profileImage {
     cursor: pointer;
