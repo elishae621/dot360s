@@ -24,7 +24,7 @@ class GetLoggedInUserRideMixin(LoginRequiredMixin):
 class OrderNotAcceptedMixin(UserPassesTestMixin):
     def test_func(self):
         ride = self.get_object()
-        order = ride.request.request_of_order
+        order = ride.request.order_of_request
         order.refresh_from_db()
         if order.accepted:
             return False
@@ -35,7 +35,7 @@ class OrderNotAcceptedMixin(UserPassesTestMixin):
         user_test_result = self.get_test_func()()
         if not user_test_result:
             ride = self.get_object()
-            order = ride.request.request_of_order
+            order = ride.request.order_of_request
             return redirect(reverse('order_detail', kwargs={'slug': order.slug}))
         return super().dispatch(request, *args, **kwargs)
     

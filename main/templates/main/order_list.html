@@ -2,7 +2,7 @@
 {% block content %}
 
 <h1>{{ user }}, see the rides waiting for you</h1>
-<p>Update your profile <a href="{% url 'driver_profile_update' %}">here</a></p>
+<p>Update your profile <a href="{% url 'user:driver_update' %}">here</a></p>
 
 {% if user.driver.status == 'BU' and current_order %}
     Current order: 

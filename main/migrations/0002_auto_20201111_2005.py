@@ -44,6 +44,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='request',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='request_of_order', to='main.request'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='order_of_request', to='main.request'),
         ),
     ]

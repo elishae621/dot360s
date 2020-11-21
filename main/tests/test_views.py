@@ -227,7 +227,7 @@ class TestCreateRequest(TestCase):
             time=self.data.get('time')).first()
         
         self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.request_of_order.slug}))
+        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.order_of_request.slug}))
     
     def test_redirect_if_no_driver_is_marked_completed(self):
         self.data = {
@@ -267,7 +267,7 @@ class TestCreateRequest(TestCase):
             time=self.data.get('time')).first()
         
         self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.request_of_order.slug}))
+        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.order_of_request.slug}))
     
     def test_redirect_for_no_avaliable_driver_if_marked_not_active(self):
         self.data = {
@@ -309,7 +309,7 @@ class TestCreateRequest(TestCase):
             time=self.data.get('time')).first()
         
         self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.request_of_order.slug}))
+        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.order_of_request.slug}))
     
     def test_redirect_for_no_avaliable_driver_if_driver_is_user(self):
         self.data = {
@@ -351,7 +351,7 @@ class TestCreateRequest(TestCase):
             time=self.data.get('time')).first()
         
         self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.request_of_order.slug}))
+        self.assertEqual(self.response.url, reverse('no_avaliable_driver', kwargs={'slug': self.request_created.order_of_request.slug}))
     
     def test_order_created_with_the_right_request(self):
         self.assertTrue(Order.objects.filter(request=self.request_created).first())
@@ -423,7 +423,7 @@ class TestCancelRequest(TestCase):
         load=True)
         
         ride = Ride.objects.get(request=request)
-        kwargs = {'slug': request.request_of_order.slug}
+        kwargs = {'slug': request.order_of_request.slug}
         self.http_request = RequestFactory().post(reverse('cancel_request', kwargs=kwargs))
         self.http_request.user = self.driver.user
         self.response = views.CancelRequest.as_view()(self.http_request, **kwargs)
@@ -441,7 +441,7 @@ class TestCancelRequest(TestCase):
         load=True)
         
         ride = Ride.objects.get(request=request)
-        kwargs = {'slug': request.request_of_order.slug}
+        kwargs = {'slug': request.order_of_request.slug}
         self.http_request = RequestFactory().post(reverse('cancel_request', kwargs=kwargs))
         self.http_request.user = self.driver.user
         self.response = views.CancelRequest.as_view()(self.http_request, **kwargs)
@@ -459,7 +459,7 @@ class TestCancelRequest(TestCase):
         load=True)
         
         ride = Ride.objects.get(request=request)
-        kwargs = {'slug': request.request_of_order.slug}
+        kwargs = {'slug': request.order_of_request.slug}
         self.http_request = RequestFactory().post(reverse('cancel_request', kwargs=kwargs))
         self.http_request.user = self.driver.user
         self.response = views.CancelRequest.as_view()(self.http_request, **kwargs)
@@ -651,7 +651,7 @@ class TestVerifyTransaction(TestCase):
         message_mock.return_value = Mock()
         verify_mock.return_value.json.return_value = verify_json
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/?reference=kshfhso3443")
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -684,7 +684,7 @@ class TestVerifyTransaction(TestCase):
         message_mock.return_value = Mock()
         verify_mock.return_value.json.return_value = verify_json
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/?reference=kshfhso3443")
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -707,7 +707,7 @@ class TestVerifyTransaction(TestCase):
         message_mock.return_value = Mock()
         verify_mock.return_value.json.return_value = verify_json
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/?reference=kshfhso3443")
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -729,7 +729,7 @@ class TestVerifyTransaction(TestCase):
         message_mock.return_value = Mock()
         verify_mock.return_value.json.return_value = verify_json
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/?reference=kshfhso3443", follow=False)
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -746,7 +746,7 @@ class TestVerifyTransaction(TestCase):
     def test_message_if_reference_not_in_request_GET(self, message_mock):
         message_mock.return_value = Mock()
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/")
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -768,7 +768,7 @@ class TestVerifyTransaction(TestCase):
         message_mock.return_value = Mock()
         verify_mock.return_value.json.return_value = verify_json
         http_request = RequestFactory().get("http://localhost:8080/verify-transaction/", follow=False)
-        order = self.ride.request.request_of_order
+        order = self.ride.request.order_of_request
         order.accepted = True
         order.save()
         order_accepted.send(sender=Order, Order=order, Driver=self.driver)
@@ -918,7 +918,7 @@ class TestTakeOrderView(TestCase):
         request_vehicle_type='T', intercity=True,
         city = 1, no_of_passengers=3,
         load=True)
-        order = self.request.request_of_order
+        order = self.request.order_of_request
         kwargs = {'slug': order.slug}
         self.http_request = RequestFactory().get(reverse('take_order', kwargs=kwargs))
         self.http_request.user = self.driver_user
@@ -932,7 +932,7 @@ class TestTakeOrderView(TestCase):
         request_vehicle_type='T', intercity=True,
         city = 1, no_of_passengers=3,
         load=True)
-        order = request.request_of_order
+        order = request.order_of_request
         kwargs={'slug': order.slug}
         http_request = RequestFactory().get(reverse('take_order', kwargs=kwargs))
         http_request.user = self.driver_user

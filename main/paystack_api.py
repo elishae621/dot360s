@@ -19,7 +19,7 @@ def authorize(user, amount):
         "amount": amount,
         'metadata': {},
         'label': "Funding Account",
-        'callback_url': "http://localhost:8080/verify-transaction/"
+        'callback_url': "http://localhost:8000/verify-transaction/"
     }
     try:
         response = requests.post("https://api.paystack.co/transaction/initialize/", data=data, headers=headers)
@@ -35,10 +35,9 @@ def verify(user, reference):
     try:
         response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
         response_json = response.json()
-        if response.ok:
-            if response_json.get('status'):
-                user.account_balance += response_json['data'].get('amount') / 100
-                user.save()
-            return response_json
+        if response_json.get('status'):
+            user.account_balance += response_json['data'].get('amount') / 100
+            user.save()
+        return response_json
     except:
         return None

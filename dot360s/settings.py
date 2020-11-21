@@ -13,10 +13,10 @@ from django.urls import reverse_lazy
 from pathlib import Path, PurePath
 import os
 from dot360s.config import (
-    SENDGRID_API_KEY, 
     DJANGO_SECRET_KEY,
     PAYSTACK_PUBLIC_KEY,
     PAYSTACK_SECRET_KEY,
+    EMAIL_HOST_PASSWORD
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -58,12 +58,9 @@ INSTALLED_APPS = [
     # 3rd-party apps
     'crispy_forms',
     'multiselectfield',
+    'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
-    
-    # # allauth
-    # 'allauth',
-    # 'allauth.account',
     
 ]
 
@@ -178,31 +175,12 @@ LOGIN_URL = reverse_lazy('user:login')
 
 AUTH_USER_MODEL = 'user.User'
 
-SENDGRID_API_KEY = SENDGRID_API_KEY
 
-SENDGIRD_SANDBOX_MODE_IN_DEBUG = False
-
-EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-
-# # django allauth settings starts
-# ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-# ACCOUNT_AUTHENTICATION_METHOD = "email"
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_UNIQUE_EMAIL = True
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# ACCOUNT_LOGIN_ATTEMPTS_LIMIT = None
-# ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 10000
-# ACCOUNT_LOGOUT_REDIRECT_URL = reverse_lazy('user:login')
-# LOGIN_REDIRECT_URL = reverse_lazy('home')
-# ACCOUNT_EMAIL_VERIFICATION = "none"
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-# ACCOUNT_SESSION_REMEMBER = True
-# ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
-
-# ACCOUNT_FORMS = {
-#     'signup': 'user.forms.RegistrationForm',
-# }
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'postmaster@sandboxbd31322cb8b74685a6768a62f678a326.mailgun.org'
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+EMAIL_USE_TLS = True
 
 
 # paystack settings and keys start
@@ -220,6 +198,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ]
 }
 
 REST_AUTH_SERIALIZERS = {

@@ -89,10 +89,10 @@ class TestDriverProfileUpdateView(TestCase):
             'vehicle_type': fake.random_element(elements=Vehicle.Vehicle_type.values)
         }
         self.request = RequestFactory().post(
-            reverse('driver_profile_update'), self.data)
+            reverse('user:driver_update'), self.data)
         self.request.user = self.driver_user
         self.response = views.driver_update_profile.as_view()(self.request)
 
     def test_success_url(self):
         self.assertEqual(self.response.status_code, 302)
-        self.assertEqual(self.response.url, reverse('driver_profile_detail', kwargs={'pk': self.driver_user.id}))
+        self.assertEqual(self.response.url, reverse('user:driver_detail', kwargs={'pk': self.driver_user.id}))

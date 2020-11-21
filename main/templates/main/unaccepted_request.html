@@ -4,6 +4,6 @@
 
 <h1>Please wait a driver is yet to accept your request at the moment. Thank you</h1>
 
-<a href="{% url 'cancel_request' slug=ride.request.request_of_order.slug %}">cancel this request</a>
+<a href="{% url 'cancel_request' slug=ride.request.order_of_request.slug %}">cancel this request</a>
 
 {% endblock %}

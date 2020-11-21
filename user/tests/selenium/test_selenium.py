@@ -81,13 +81,10 @@ class TestUpdateViewMixin(TestCase):
         referral_field.send_keys('elishae621@gmail.com')
 
         self.driver.find_element_by_id("register").click()
-        time.sleep(30)
-
-        self.driver.get("http://localhost:8000" + reverse('user:logout'))
        
         self.driver.get("http://localhost:8000" + reverse('user:login'))
         
-        email_field = self.driver.find_element_by_id("id_login")
+        email_field = self.driver.find_element_by_id("id_email")
         email_field.click()
         email_field.clear()
         email_field.send_keys(email)

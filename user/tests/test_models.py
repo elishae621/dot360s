@@ -107,7 +107,7 @@ class TestDriverModel(TestCase):
 
     def test_get_absolute_url(self):
         self.assertEqual(self.user.driver.get_absolute_url(), reverse(
-            'driver_profile_detail', kwargs={'pk':self.user.driver.pk}))
+            'user:driver_detail', kwargs={'pk':self.user.driver.pk}))
 
 class TestVehicleModel(TestCase):
     def setUp(self):
@@ -121,5 +121,5 @@ class TestVehicleModel(TestCase):
 
     def test_get_absolute_url(self):
         self.assertEqual(self.user.driver.vehicle.get_absolute_url(), reverse(
-            'driver_profile_detail', kwargs={'pk': self.user.driver.pk}))
+            'user:driver_detail', kwargs={'pk': self.user.driver.pk}))
 

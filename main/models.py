@@ -11,9 +11,9 @@ from django.shortcuts import reverse
 
 class Request(models.Model):
     driver = models.ForeignKey(Driver, related_name='driver',
-        on_delete=models.SET_NULL, null=True )
+        on_delete=models.CASCADE, null=True)
     passenger = models.ForeignKey(User, related_name='passenger',
-        on_delete=models.SET_NULL, null=True)
+        on_delete=models.CASCADE, null=True)
     from_address = models.CharField(_('From'), max_length=70, null=True)
     to_address = models.CharField(_('To'), max_length=70, null=True)
     city = models.CharField(choices=Driver.City.choices,
@@ -29,7 +29,7 @@ class Request(models.Model):
         return f'Request: {self.driver}, {self.passenger}'
 
     def get_absolute_url(self):
-        return reverse("order_detail", kwargs={"slug": self.request_of_order.slug})
+        return reverse("order_detail", kwargs={"slug": self.order_of_request.slug})
 
 
 class Ride(models.Model):
@@ -61,11 +61,11 @@ class Ride(models.Model):
         return f'Ride => {self.request}'
 
     def get_absolute_url(self):
-        return reverse("order_detail", kwargs={"slug": self.request.request_of_order.slug})
+        return reverse("order_detail", kwargs={"slug": self.request.order_of_request.slug})
 
 
 class Order(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='request_of_order')
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='order_of_request')
     driver = models.ManyToManyField(Driver, related_name='request_driver')
     time_posted = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
@@ -91,7 +91,7 @@ class Withdrawal(models.Model):
         completed = "completed"
         cancelled = "cancelled"
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawal")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawal", null=True)
     name = models.CharField(max_length=40, null=True, blank=True)
     amount = models.PositiveIntegerField(default=0)
     date = models.DateTimeField(auto_now_add=True)

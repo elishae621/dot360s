@@ -17,13 +17,13 @@
                     <p>Load: {{ request.load }} InterCity: {{ request.intercity }} No of passengers: {{ request.no_of_passengers }}</p>
     
                     <p>status: {{ request.ride.status }}</p>
-                    <p>Accepted: {{ request.request_of_order.accepted }}</p>
-                    <p class="small">Posted on {{ request.request_of_order.time_posted|date:"F d, Y. h:i A" }}</p>
-                    {% if request.request_of_order.accepted %}
-                        <a class="btn btn-success" href="{% url 'order_detail' slug=request.request_of_order.slug %}">Details</a>
+                    <p>Accepted: {{ request.order_of_request.accepted }}</p>
+                    <p class="small">Posted on {{ request.order_of_request.time_posted|date:"F d, Y. h:i A" }}</p>
+                    {% if request.order_of_request.accepted %}
+                        <a class="btn btn-success" href="{% url 'order_detail' slug=request.order_of_request.slug %}">Details</a>
                     {% endif %}
                     {% if request.ride.status == "unconfirmed" or request.ride.status == "waiting" %}
-                    <a class="btn btn-primary" href="{% url 'cancel_request' slug=request.request_of_order.slug %}">Cancel Request</a>
+                    <a class="btn btn-primary" href="{% url 'cancel_request' slug=request.order_of_request.slug %}">Cancel Request</a>
                     {% endif %}
                 </div>
             </div>

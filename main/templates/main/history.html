@@ -11,8 +11,8 @@
                         <h3>From: {{ request.from_address}}  To: {{ request.to_address}}</h3>
                         <p>Passenger: {{ request.passenger.firstname }} {{ request.passenger.lastname }} Time: {{ request.time }}</p>
                         <p>status: {{ request.ride.status }}</p>
-                        <p>Accepted: {{ request.request_of_order.accepted }}</p>
-                        <a class="btn btn-primary" href="{% url 'order_detail' slug=request.request_of_order.slug %}">Detail</a>    
+                        <p>Accepted: {{ request.order_of_request.accepted }}</p>
+                        <a class="btn btn-primary" href="{% url 'order_detail' slug=request.order_of_request.slug %}">Detail</a>    
                     </div>
                 </div>
             </div>

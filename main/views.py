@@ -15,15 +15,6 @@ from main.signals import order_accepted
 
 class Index(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
-        # from django.core.mail import send_mail
-
-        # status = send_mail(
-        #     'Subject here',
-        #     'Here is the message.',
-        #     'dot360.official@gmail.com',
-        #     ['elishae621@gmail.com','elishae166@gmail.com',],
-        #     fail_silently=False,
-        # )
         if self.request.user.is_driver:
             return redirect(reverse('order_list'))
         else:
@@ -120,10 +111,10 @@ class UnacceptedRequest(GetLoggedInUserRideMixin,  OrderNotAcceptedMixin, generi
 class RequestListView(generic.ListView):
     template_name = "main/home.html"
     context_object_name = 'requests'
-    paginate_by = 10
+    paginate_by = 5
 
     def get_queryset(self):
-        return Request.objects.filter(passenger=self.request.user).order_by('-time')[:5]
+        return Request.objects.filter(passenger=self.request.user).order_by('-time')
 
 
 class OrderDetail(generic.DetailView):
@@ -134,14 +125,7 @@ class OrderDetail(generic.DetailView):
 class AnotherDriver(generic.DetailView):
     model = Order
     template_name = "main/another_driver.html"
-
-
-# get a list of all the drivers of an order
-# remove a driver from the main field and 
-# add him to another for hold, do this and if all the drivers are exhausted then get
-# start from begining with the first driver 
-# if they are on the last driver then let 
-# them know then take them back
+ 
     def get(self, request, *args, **kwargs):
         order = self.get_object()
         order.accepted = False
@@ -247,7 +231,7 @@ class ChangeDriverStatus(MustBeDriverMixin, GetLoggedInDriverMixin, generic.deta
     model = Driver
 
     def get(self, request, *args, **kwargs):
-        driver = self.request.user.driver
+        driver = request.user.driver
         if driver.status == 'AV':
             driver.status = 'NA'
             driver.save()

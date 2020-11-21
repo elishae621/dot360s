@@ -25,13 +25,13 @@ class TestMustBeDriverValidMixin(TestCase):
 
     
     def test_accessible_for_driver(self):
-        request = RequestFactory().get(reverse('driver_profile_update'))
+        request = RequestFactory().get(reverse('user:driver_update'))
         request.user = self.driver_user
         response = views.driver_update_profile.as_view()(request)
         self.assertEqual(response.status_code, 200)
 
     def test_redirect_for_not_driver(self):
-        request = RequestFactory().get(reverse('driver_profile_update'))
+        request = RequestFactory().get(reverse('user:driver_update'))
         request.user = self.user
         response = views.driver_update_profile.as_view()(request)
         self.assertEqual(response.status_code, 302)
@@ -67,7 +67,7 @@ class TestUpdateViewMixin(TestCase):
             'vehicle_type': fake.random_element(elements=Vehicle.Vehicle_type.values)
         }
         self.request = RequestFactory().post(
-            reverse('driver_profile_update'), self.data)
+            reverse('user:driver_update'), self.data)
         self.request.user = self.driver_user
         self.response = views.driver_update_profile.as_view()(self.request)
         self.driver.refresh_from_db()
@@ -130,7 +130,7 @@ class TestUpdateFormInvalid(TestCase):
             'vehicle_type': 'invalid type'
         }
         self.request = RequestFactory().post(
-            reverse('driver_profile_update'), self.data)
+            reverse('user:driver_update'), self.data)
         self.request.user = self.driver_user
         self.response = views.driver_update_profile.as_view()(self.request)
         self.driver.refresh_from_db()
@@ -156,7 +156,7 @@ class TestGetUpdateForm(TestCase):
         phone=fake.numerify(text='080########'), 
         is_driver=True)
         self.driver_user.set_password(fake.password())
-        self.request = RequestFactory().get(reverse('driver_profile_update'))
+        self.request = RequestFactory().get(reverse('user:driver_update'))
         self.request.user = self.driver_user
         self.response = views.driver_update_profile.as_view()(self.request)
         self.driver_user.refresh_from_db()
@@ -177,7 +177,7 @@ class TestGetLoginedUserMixin(TestCase):
         phone=fake.numerify(text='080########'), 
         is_driver=True)
         driver_user.set_password(fake.password())
-        request = RequestFactory().get(reverse('driver_profile_detail', kwargs={'pk': driver_user.pk}))
+        request = RequestFactory().get(reverse('user:driver_detail', kwargs={'pk': driver_user.pk}))
         request.user = driver_user
         response = views.profile_detail_view.as_view()(request)
         self.assertEqual(
@@ -187,7 +187,7 @@ class TestGetLoginedUserMixin(TestCase):
         user = User.objects.create(email=fake.email(), firstname=fake.first_name(), lastname=fake.last_name(),
         phone=fake.numerify(text='080########'))
         user.set_password(fake.password())
-        request = RequestFactory().get(reverse('driver_profile_detail', kwargs={'pk': user.pk}))
+        request = RequestFactory().get(reverse('user:driver_detail', kwargs={'pk': user.pk}))
         request.user = user
         with self.assertRaises(Http404):
             response = views.profile_detail_view.as_view()(request)

@@ -15,10 +15,10 @@ class VehicleInline(admin.StackedInline):
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'phone', 'account_balance', 'is_driver', 'is_staff')
-    list_filter = ('firstname', 'is_driver')
+    list_display = ('firstname', 'lastname', 'phone', 'account_balance', 'is_driver', 'is_active', 'is_staff')
+    list_filter = ('firstname', 'is_driver', 'is_active',)
     inlines = [DriverInline, ]
-    readonly_fields = ('is_driver', 'is_staff')
+    readonly_fields = ('is_driver', 'is_staff', 'is_active', )
     fieldsets = (
         ('Personal Information', {
             'classes': ('wide',),
@@ -30,14 +30,14 @@ class UserAdmin(admin.ModelAdmin):
         }),
         ('Permissions', {
             'classes': ('wide',),
-            'fields': ('is_driver', 'is_staff',),
+            'fields': ('is_driver', 'is_staff', 'is_active', ),
         }),
         ('Referral Details', {
             'classes': ('wide',),
             'fields': ('referral', 'referral_status')
         })
     )
-    search_fields = ('is_driver', 'is_staff',)
+    search_fields = ('is_driver', 'is_staff', 'is_active', )
     ordering = ('firstname',)
 
     def get_inline_instances(self, request, obj=None):
@@ -78,8 +78,8 @@ class UserAdmin(admin.ModelAdmin):
         return False
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ('user', 'location', 'status', 'journey_type')
-    list_filter = ('location', 'status', 'journey_type')
+    list_display = ('user', 'location', 'status', 'journey_type', 'completed',)
+    list_filter = ('location', 'status', 'journey_type', 'completed',)
     readonly_fields = ('user',)
     inlines = [VehicleInline, ]    
     fieldsets = (
@@ -89,11 +89,11 @@ class DriverAdmin(admin.ModelAdmin):
         }),
         ('Details', {
             'classes': ('wide',),
-            'fields': ('location', 'status', 'journey_type',),
+            'fields': ('location', 'status', 'journey_type', 'completed',),
 
         }),
     )
-    search_fields = ('location', 'status', 'journey_type',)
+    search_fields = ('location', 'status', 'journey_type', 'completed',)
     ordering = ('location',)
 
     def get_inline_instances(self, request, obj=None):

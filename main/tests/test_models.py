@@ -30,7 +30,7 @@ class TestRequest(TestCase):
             f"Request: {self.driver}, {self.passenger}")
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.request.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_of_order.slug}))
+        self.assertEqual(self.request.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.order_of_request.slug}))
 
 
 class TestRide(TestCase):
@@ -51,7 +51,7 @@ class TestRide(TestCase):
             f"Ride => Request: {self.driver}, {self.passenger}")
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.ride.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.request_of_order.slug}))
+        self.assertEqual(self.ride.get_absolute_url(), reverse('order_detail', kwargs={'slug': self.request.order_of_request.slug}))
 
 
 class TestOrder(TestCase):

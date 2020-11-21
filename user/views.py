@@ -1,3 +1,4 @@
+from dot360s.config import MAILGUN_API_KEY
 from django.views import generic
 from django.shortcuts import render, reverse
 from django.contrib.auth.tokens import default_token_generator 
@@ -14,6 +15,8 @@ from django.http import HttpResponseRedirect
 from user.models import Driver, User
 from user.mixins import Update_view, GetLoggedInDriverMixin
 from user.forms import RegistrationForm, LoginForm
+
+import requests
 
 
 def error_400(request, exception):
@@ -42,20 +45,24 @@ class RegistrationView(generic.CreateView):
     form_class = RegistrationForm
 
     def form_valid(self, form):
-        user = form.save(commit=False) 
-        user.is_active = False 
-        user.save() 
-        current_site = get_current_site(self.request)
-        mail_subject = 'Activate your account.'
-        message = render_to_string('user/acc_active_email.html', {
-            'user': user, 
-            'domain': current_site.domain, 
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': default_token_generator.make_token(user)
-        })
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(mail_subject, message, to=[to_email], from_email='dot360.official@gmail.com')
-        email.send()
+        user = User.objects.create(email=form.cleaned_data['email'], firstname=form.cleaned_data['firstname'], lastname=form.cleaned_data['lastname'], phone=form.cleaned_data['phone'], date_of_birth=form.cleaned_data['date_of_birth'])
+        if form.cleaned_data['referral']:
+            user.referral = form.cleaned_data['referral']
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        # user.is_active = False 
+        # user.save() 
+        # current_site = get_current_site(self.request)
+        # mail_subject = 'Activate your account.'
+        # message = render_to_string('user/acc_active_email.html', {
+        #     'user': user, 
+        #     'domain': current_site.domain, 
+        #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        #     'token': default_token_generator.make_token(user)
+        # })
+        # to_email = form.cleaned_data.get('email')
+        # email = EmailMessage(mail_subject, message, to=[to_email], from_email='dot360.official@gmail.com')
+        # email.send()
         return HttpResponse('Please confirm your email address to complete registration')
         
 def activate(request, uidb64, token):
@@ -85,7 +92,7 @@ def loginView(request):
         if form.is_valid():
             email = request.POST['email']
             password = request.POST['password']
-            user = authenticate(email=email, password=password)
+            user = authenticate(username=email, password=password)
 
             if user:
                 login(request, user)
@@ -112,9 +119,9 @@ class profile_detail_view(GetLoggedInDriverMixin, generic.DetailView):
 
 class driver_update_profile(GetLoggedInDriverMixin, Update_view, generic.UpdateView):
     """inheriting the main deadly mixin I wrote"""
-    template_name = "user/driver_profile_update.html"
+    template_name = "user/user:driver_update.html"
     model = Driver
 
     def get_success_url(self):
-        return reverse('driver_profile_detail', kwargs={'pk': self.request.user.pk})
+        return reverse('user:driver_detail', kwargs={'pk': self.request.user.pk})
 

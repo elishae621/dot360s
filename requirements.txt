@@ -12,8 +12,10 @@ cryptography==3.1.1
 defusedxml==0.6.0
 Django==3.1.2
 django-crispy-forms==1.9.2
+django-filter==2.4.0
 django-flatpickr==1.0.1
 django-google-maps==0.12.2
+django-mailgun==0.9.1
 django-multiselectfield==0.1.12
 django-phonenumber-field==5.0.0
 django-rest-framework==0.1.0
